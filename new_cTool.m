@@ -22,7 +22,7 @@ function varargout = new_cTool(varargin)
 
 % Edit the above text to modify the response to help new_cTool
 
-% Last Modified by GUIDE v2.5 08-Jul-2018 12:17:53
+% Last Modified by GUIDE v2.5 11-Jul-2018 09:36:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -54,9 +54,13 @@ function new_cTool_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for new_cTool
 handles.output = hObject;
-handles.image = varargin{1};    
-handles.axes1 = imshow(handles.image);
-
+handles.image = varargin{1}; 
+axes(handles.axes1);
+imshow(handles.image);
+axes(handles.axes2);
+histogram(handles.axes1.Children.CData);
+makeLine(handles, 'Floor Line', 0);
+makeLine(handles, 'Roof Line', 255);
 % Update handles structure
 guidata(hObject, handles);
 
@@ -80,20 +84,22 @@ function floorSlide_Callback(hObject, eventdata, handles)
 % hObject    handle to floorSlide (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    curLim = get(handles.axes1.Parent, 'CLim');
+    curLim = get(handles.axes1, 'CLim');
     floor = round(get(hObject, 'Value'));
     roof = curLim(2);
-    if floor > roof
+    if floor >= roof
         floor = roof - 1;
         set(handles.floorSlide, 'Value', floor);
     end
     midPoint = round((roof - floor)/2) + floor;
     set(handles.midSlide, 'Value', midPoint);
-    set(handles.axes1.Parent, 'CLim', [floor, roof]);
+    set(handles.axes1, 'CLim', [floor, roof]);
     set(handles.floorStr, 'String', ...
             strcat('Contrast Floor: ', num2str(floor)));
     set(handles.midStr, 'String', ...
         strcat('Contrast Centre: ', num2str(midPoint)));
+    makeLine(handles, 'Floor Line', floor);
+  
 
 
 
@@ -115,22 +121,24 @@ function roofSlide_Callback(hObject, eventdata, handles)
 % hObject    handle to roofSlide (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    string = 'Contrast Roof: ';
-    curLim = get(handles.axes1.Parent, 'CLim');
+    curLim = get(handles.axes1, 'CLim');
     roof = round(get(hObject, 'Value'));
     floor = curLim(1);
-    if roof < floor
+    if roof <= floor
         roof = floor + 1;
         set(handles.roofSlide, 'Value', roof);
     end
     midPoint = round((roof - floor)/2) + floor;
     
     set(handles.midSlide, 'Value', midPoint);
-    set(handles.axes1.Parent, 'CLim', [floor, roof]);
+    set(handles.axes1, 'CLim', [floor, roof]);
     set(handles.roofStr, 'String', ...
             strcat('Contrast Roof: ', num2str(roof)));
     set(handles.midStr, 'String', ...
         strcat('Contrast Centre: ', num2str(midPoint)));
+    
+    makeLine(handles, 'Roof Line', roof);
+
 
 
 
@@ -199,11 +207,14 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-% --- Executes on button press in pushbutton2.
-function pushbutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton2 (see GCBO)
+% --- Executes on button press in submitButton.
+function submitButton_Callback(hObject, eventdata, handles)
+% hObject    handle to submitButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+out = get(handles.axes1, 'CLim');
+set(handles.output.UserData, out);
+
 
 
 % --- Executes on slider movement.
@@ -212,7 +223,7 @@ function midSlide_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
- curPos = get(handles.axes1.Parent, 'CLim');    
+ curPos = get(handles.axes1, 'CLim');    
     floor = curPos(1);
     roof = curPos(2);
     midSpace = round((roof - floor)/2);
@@ -238,7 +249,7 @@ function midSlide_Callback(hObject, eventdata, handles)
         end
     end
     set(handles.midSlide, 'Value', newMid);
-    set(handles.axes1.Parent, 'CLim', [floor, roof]);
+    set(handles.axes1, 'CLim', [floor, roof]);
     set(handles.roofSlide, 'Value', roof);
     set(handles.floorSlide, 'Value', floor);
     set(handles.roofStr, 'String', ...
@@ -247,6 +258,8 @@ function midSlide_Callback(hObject, eventdata, handles)
         strcat('Contrast Floor: ', num2str(floor)));
     set(handles.midStr, 'String', ...
         strcat('Contrast Centre: ', num2str(newMid)));
+    makeLine(handles, 'Floor Line', floor);
+    makeLine(handles, 'Roof Line', roof);
     
     
 
@@ -271,9 +284,9 @@ function roofSlide_DeleteFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-% --- Executes on button press in pushbutton3.
-function pushbutton3_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton3 (see GCBO)
+% --- Executes on button press in resetButton.
+function resetButton_Callback(hObject, eventdata, handles)
+% hObject    handle to resetButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 resetCLim = [0 255];
@@ -283,4 +296,26 @@ set(handles.floorSlide, 'Value', resetCLim(1));
 set(handles.floorStr, 'String', 'Contrast Floor: 0');
 set(handles.midSlide, 'Value', 127);
 set(handles.midStr, 'String', 'Contrast Centre: 127');
-set(handles.axes1.Parent, 'CLim', resetCLim);
+set(handles.axes1, 'CLim', resetCLim);
+makeLine(handles, 'Floor Line', 0);
+makeLine(handles, 'Roof Line', 255);
+
+
+% --- Executes on button press in histButton.
+function histButton_Callback(hObject, eventdata, handles)
+% hObject    handle to histButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+axes(handles.axes2);
+histogram(handles.axes1.Children.CData, 'Normalization', 'Probability');
+%set(handles.axes2, 'XLim', [0 255]);
+%axes('Color','none','YColor','none');
+
+
+function makeLine(handles, lineTag, value)
+    delete(findobj(handles.axes2.Children, 'Tag', lineTag));
+    y = handles.axes2.YLim;
+    x = [value value];
+    l = line(x,y);
+    l.Color = [1 0 0];
+    l.Tag = lineTag;
