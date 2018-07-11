@@ -22,7 +22,7 @@ function varargout = new_cTool(varargin)
 
 % Edit the above text to modify the response to help new_cTool
 
-% Last Modified by GUIDE v2.5 11-Jul-2018 11:07:33
+% Last Modified by GUIDE v2.5 11-Jul-2018 12:03:57
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -303,6 +303,3 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % Hint: delete(hObject) closes the figure
 delete(hObject);
-
-
-
