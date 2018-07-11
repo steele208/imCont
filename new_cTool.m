@@ -22,7 +22,7 @@ function varargout = new_cTool(varargin)
 
 % Edit the above text to modify the response to help new_cTool
 
-% Last Modified by GUIDE v2.5 11-Jul-2018 09:36:01
+% Last Modified by GUIDE v2.5 11-Jul-2018 09:48:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -319,3 +319,10 @@ function makeLine(handles, lineTag, value)
     l = line(x,y);
     l.Color = [1 0 0];
     l.Tag = lineTag;
+
+
+% --- Executes when figure1 is resized.
+function figure1_SizeChangedFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
