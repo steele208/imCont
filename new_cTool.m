@@ -22,7 +22,7 @@ function varargout = new_cTool(varargin)
 
 % Edit the above text to modify the response to help new_cTool
 
-% Last Modified by GUIDE v2.5 11-Jul-2018 09:48:27
+% Last Modified by GUIDE v2.5 11-Jul-2018 11:07:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -54,18 +54,16 @@ function new_cTool_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for new_cTool
 handles.output = hObject;
+handles.output.UserData = struct();
 handles.image = varargin{1}; 
 axes(handles.axes1);
 imshow(handles.image);
 axes(handles.axes2);
-histogram(handles.axes1.Children.CData);
+histogram(handles.axes1.Children.CData, 'Normalization', 'Probability');
 makeLine(handles, 'Floor Line', 0);
 makeLine(handles, 'Roof Line', 255);
 % Update handles structure
 guidata(hObject, handles);
-
-% UIWAIT makes new_cTool wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -100,9 +98,6 @@ function floorSlide_Callback(hObject, eventdata, handles)
         strcat('Contrast Centre: ', num2str(midPoint)));
     makeLine(handles, 'Floor Line', floor);
   
-
-
-
 % --- Executes during object creation, after setting all properties.
 function floorSlide_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to floorSlide (see GCBO)
@@ -113,7 +108,6 @@ function floorSlide_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-
 
 % --- Executes on slider movement.
 function roofSlide_Callback(hObject, eventdata, handles)
@@ -139,9 +133,6 @@ function roofSlide_Callback(hObject, eventdata, handles)
     
     makeLine(handles, 'Roof Line', roof);
 
-
-
-
 % --- Executes during object creation, after setting all properties.
 function roofSlide_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to roofSlide (see GCBO)
@@ -154,68 +145,28 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 
 
-
-function edit1_Callback(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit1 as text
-%        str2double(get(hObject,'String')) returns contents of edit1 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit2_Callback(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit2 as text
-%        str2double(get(hObject,'String')) returns contents of edit2 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in pushbutton1.
-function pushbutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
 % --- Executes on button press in submitButton.
 function submitButton_Callback(hObject, eventdata, handles)
 % hObject    handle to submitButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 out = get(handles.axes1, 'CLim');
-set(handles.output.UserData, out);
+handles.output.UserData.Continue = 1;
+handles.output.UserData.Roof = out(2);
+handles.output.UserData.Floor = out(1);
+new_cTool_OutputFcn(hObject, eventdata, handles); 
+% Closes visibile GUI but keeps data handles intact
+set(handles.figure1, 'Visible', 'off');
 
-
+% --- Executes on button press in skipButton.
+function skipButton_Callback(hObject, eventdata, handles)
+% hObject    handle to skipButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.output.UserData.Continue = 0;
+new_cTool_OutputFcn(hObject, eventdata, handles);
+% Closes visibile GUI but keeps data handles intact
+set(handles.figure1, 'Visible', 'off');
 
 % --- Executes on slider movement.
 function midSlide_Callback(hObject, eventdata, handles)
@@ -261,9 +212,6 @@ function midSlide_Callback(hObject, eventdata, handles)
     makeLine(handles, 'Floor Line', floor);
     makeLine(handles, 'Roof Line', roof);
     
-    
-
-
 
 % --- Executes during object creation, after setting all properties.
 function midSlide_CreateFcn(hObject, eventdata, handles)
@@ -332,8 +280,6 @@ set(handles.floorSlide, 'Value', floor);
 set(handles.floorStr, 'String', ...
         strcat('Contrast Floor: ', num2str(floor)));
 
-
-
 function makeLine(handles, lineTag, value)
     delete(findobj(handles.axes2.Children, 'Tag', lineTag));
     y = handles.axes2.YLim;
@@ -348,3 +294,15 @@ function figure1_SizeChangedFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hint: delete(hObject) closes the figure
+delete(hObject);
+
+
+
