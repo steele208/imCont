@@ -307,31 +307,21 @@ function histButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 axes(handles.axes2);
-H = histogram(handles.axes1.Children.CData, 'BinEdges', 1:256, ...
-    'Normalization', 'CumCount');
+H = histogram(handles.axes1.Children.CData, 'Normalization', 'CumCount');
 histVal = H.Values;
 thresh = 0.999 * numel(handles.axes1.Children.CData);
 floor = find(histVal > thresh, 1);
 roof = floor + 2;
-mid = floor + 1;
 
-histogram(handles.axes1.Children.CData, 'BinEdges', 1:256, ...
-    'Normalization', 'Probability');
-set(handles.axes1, 'CLim', [floor, roof]);
 makeLine(handles, 'Roof Line', roof);
 set(handles.roofSlide, 'Value', roof);
-set(handles.roofStr, 'String', ...
-        strcat('Contrast Roof: ', num2str(roof)));
-    
-set(handles.midSlide, 'Value', mid);
-set(handles.midStr, 'String', ...
-        strcat('Contrast Centre: ', num2str(mid)));
-    
-makeLine(handles, 'Floor Line', floor);
-set(handles.floorSlide, 'Value', floor);
-set(handles.floorStr, 'String', ...
-        strcat('Contrast Floor: ', num2str(floor)));
 
+makeLine(handles, 'Floor Line', floor);
+set(handles.roofSlide, 'Value', floor);
+
+
+%set(handles.axes2, 'XLim', [0 255]);
+%axes('Color','none','YColor','none');
 
 
 function makeLine(handles, lineTag, value)
