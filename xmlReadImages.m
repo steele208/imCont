@@ -1,9 +1,10 @@
-[xmlFile, xmlDir] = uigetfile('*.xml');
-tic;
-tree = xmlread(strcat(xmlDir,xmlFile));
-xmlStruct = parseChildren(tree);
-toc;
-outStruct = xmlStruct.Data.Data;
+function outStruct = xmlReadImages(xmlFile, xmlDir)
+    tic;
+    tree = xmlread(strcat(xmlDir,xmlFile));
+    xmlStruct = parseChildren(tree);
+    toc;
+    outStruct = xmlStruct.Data.Data;
+end
 
 %% Local Function to 'Recurse' over children
 function children = parseChildren(theNode)
