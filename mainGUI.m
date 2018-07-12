@@ -180,31 +180,51 @@ function contButton_Callback(hObject, eventdata, handles)
 % hObject    handle to contButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+%{
 switch handles.loadXML.Value
     case 1
         % Load .xml
         [xmlFile, xmlPath] = uigetfile('.xml');
-        loaded = parfeval(handles.pool, ...
+        loadedXml = parfeval(handles.pool, ...
             xmlReadImages, 1, xmlFile, xmlPath);
-        data = fetchOutputs(loaded);
-        handles.output.UserData.metaData = data;
-        handles.output.UserData.imageInfo = data.xmlStruct.Data(6);
+        % Block, waiting for xml
+        xmlData = fetchOutputs(loadedXml);
+        handles.output.UserData.metaData = xmlData;
+        handles.output.UserData.imageInfo = xmlData.xmlStruct.Data(6);
         fprintf("Meta data loaded\n");
     case 0
         % Load .mat -> Assume correct format from user
         [xmlFile, xmlPath] = uigetfile('.mat');
-        loaded = parfeval(handles.pool, ...
+        loadedXml = parfeval(handles.pool, ...
             @load, 1, strcat(xmlPath, xmlFile));
-        data = fetchOutputs(loaded);
-        handles.output.UserData.metaData = data;
-        handles.output.UserData.imageInfo = data.xmlStruct.Data(6);
+        % Block, waiting for xml
+        xmlData = fetchOutputs(loadedXml);
+        handles.output.UserData.metaData = xmlData;
+        handles.output.UserData.imageInfo = xmlData.xmlStruct.Data(6);
         fprintf("Meta data loaded\n");
 end
-
+%}
 switch handles.loadFiles.Value
     case 1
+        % load .tiff files, will require metadata to be added
+        imL = @imageLoad;
+        imData = parfeval(handles.pool, imL(), 1);
+        % Block, waiting for images
+        im = fetchOutputs(imData);
+        if im == 0
+            figure1_CloseRequestFcn(hObject, eventdata, handles)
+        end
     case 0
+        % Load pre-run .mat - should include metadata
+        [imFile, imPath] = uigetfile('.mat');
+        imData = parfeval(handles.pool, @load, 1, strcat(imPath, imFile));
+        im = fetchOutputs(imData);
 end
+
+
+
+
+
 
 
 % --- Executes when user attempts to close figure1.

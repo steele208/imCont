@@ -65,6 +65,8 @@ makeLine(handles, 'Roof Line', 255);
 % Update handles structure
 guidata(hObject, handles);
 
+uiwait(handles.figure1);
+
 
 % --- Outputs from this function are returned to the command line.
 function varargout = new_cTool_OutputFcn(hObject, eventdata, handles) 
@@ -75,6 +77,7 @@ function varargout = new_cTool_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+uiresume(handles.figure1);
 
 
 % --- Executes on slider movement.
@@ -152,8 +155,8 @@ function submitButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 out = get(handles.axes1, 'CLim');
 handles.output.UserData.Continue = 1;
-handles.output.UserData.Roof = out(2);
-handles.output.UserData.Floor = out(1);
+handles.output.UserData.Roof = out(2)/256;
+handles.output.UserData.Floor = out(1)/256;
 new_cTool_OutputFcn(hObject, eventdata, handles); 
 % Closes visibile GUI but keeps data handles intact
 set(handles.figure1, 'Visible', 'off');
