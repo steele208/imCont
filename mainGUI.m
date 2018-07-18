@@ -56,7 +56,7 @@ function mainGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 %start paralell pool for asynchronus working
-handles.pool = gcp; 
+%handles.pool = gcp; 
 
 % Update handles structure
 guidata(hObject, handles);
@@ -180,52 +180,50 @@ function contButton_Callback(hObject, eventdata, handles)
 % hObject    handle to contButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%{
-switch handles.loadXML.Value
-    case 1
-        % Load .xml
-        [xmlFile, xmlPath] = uigetfile('.xml');
-        loadedXml = parfeval(handles.pool, ...
-            xmlReadImages, 1, xmlFile, xmlPath);
-        % Block, waiting for xml
-        xmlData = fetchOutputs(loadedXml);
-        handles.output.UserData.metaData = xmlData;
-        handles.output.UserData.imageInfo = xmlData.xmlStruct.Data(6);
-        fprintf("Meta data loaded\n");
-    case 0
-        % Load .mat -> Assume correct format from user
-        [xmlFile, xmlPath] = uigetfile('.mat');
-        loadedXml = parfeval(handles.pool, ...
-            @load, 1, strcat(xmlPath, xmlFile));
-        % Block, waiting for xml
-        xmlData = fetchOutputs(loadedXml);
-        handles.output.UserData.metaData = xmlData;
-        handles.output.UserData.imageInfo = xmlData.xmlStruct.Data(6);
-        fprintf("Meta data loaded\n");
-end
-%}
+msgNew = {'1) Select image files'; '2) Select metadata in chosen format'};
+msgOld = {'Select image files'; '   (These should include metadata)'};
+loadMsg = 'Loading - Please wait some seconds...';
 switch handles.loadFiles.Value
     case 1
+        usageMsg = makeDialog(msgNew);
         % load .tiff files, will require metadata to be added
-        imL = @imageLoad;
-        imData = parfeval(handles.pool, imL(), 1);
-        % Block, waiting for images
-        im = fetchOutputs(imData);
-        if im == 0
+        handles.output.UserData.imData = imageLoad();
+        delete(usageMsg);
+        handles.output.UserData.imageType = 'new';
+        if ~isstruct(handles.output.UserData.imData)
             figure1_CloseRequestFcn(hObject, eventdata, handles)
         end
     case 0
+        usageMsg = makeDialog(msgOld);
         % Load pre-run .mat - should include metadata
         [imFile, imPath] = uigetfile('.mat');
-        imData = parfeval(handles.pool, @load, 1, strcat(imPath, imFile));
-        im = fetchOutputs(imData);
+        delete(usageMsg);
+        loadMsg = makeDialog(loadMsg);
+        pause(0.0001);
+        handles.output.UserData.imData = load(strcat(imPath, imFile));
+        delete(loadMsg);
+        handles.output.UserData.imageType = 'old';
+end
+if strcmp(handles.output.UserData.imageType, 'new')
+        switch handles.loadXML.Value
+            case 1
+                % Load .xml
+                [xmlFile, xmlPath] = uigetfile('.xml');
+                handles.output.UserData.xmlLocation = strcat(xmlPath, xmlFile);
+                handles.output.UserData.metaData = '.xml';
+            case 0
+                % Load .mat
+                [xmlFile, xmlPath] = uigetfile('.mat');
+                handles.output.UserData.xmlLocation = strcat(xmlPath, xmlFile);
+                handles.output.UserData.metaData = '.mat';
+        end
 end
 
-
-
-
-
-
+function d = makeDialog(msg)
+d = dialog('Position', [0 500 250 50], 'Name', 'Loading');
+uicontrol('Parent', d, 'Style', 'text',...
+    'Position',[0 -5 245 45],...
+    'String', msg);
 
 % --- Executes when user attempts to close figure1.
 function figure1_CloseRequestFcn(hObject, eventdata, handles)
@@ -237,6 +235,31 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 delete(handles.figure1);
 
 
+
+
+% --- Executes on button press in loadFiles.
+function loadFiles_Callback(hObject, eventdata, handles)
+% hObject    handle to loadFiles (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of loadFiles
+set(handles.loadFiles, 'Value', 1);
+set(handles.loadStruct, 'Value', 0);
+set(handles.loadXML, 'Enable', 'on');
+set(handles.loadMAT, 'Enable', 'on');
+
+% --- Executes on button press in loadStruct.
+function loadStruct_Callback(hObject, eventdata, handles)
+% hObject    handle to loadStruct (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of loadStruct
+set(handles.loadFiles, 'Value', 0);
+set(handles.loadStruct, 'Value', 1);
+set(handles.loadXML, 'Enable', 'off');
+set(handles.loadMAT, 'Enable', 'off');
 
 % --- Executes on button press in loadXML.
 function loadXML_Callback(hObject, eventdata, handles)
@@ -257,27 +280,6 @@ function loadMAT_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of loadMAT
 set(handles.loadXML, 'Value', 0);
 set(handles.loadMAT, 'Value', 1);
-
-% --- Executes on button press in loadFiles.
-function loadFiles_Callback(hObject, eventdata, handles)
-% hObject    handle to loadFiles (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of loadFiles
-set(handles.loadFiles, 'Value', 1);
-set(handles.loadStruct, 'Value', 0);
-
-% --- Executes on button press in loadStruct.
-function loadStruct_Callback(hObject, eventdata, handles)
-% hObject    handle to loadStruct (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of loadStruct
-set(handles.loadFiles, 'Value', 0);
-set(handles.loadStruct, 'Value', 1);
-
 
 % --- Executes on button press in videoAll.
 function videoAll_Callback(hObject, eventdata, handles)

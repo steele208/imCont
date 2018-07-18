@@ -4,7 +4,8 @@ function imOut = imageLoad()
     
     %figure('Visible','on'); 
     % Catch the UI being cancelled
-    [fname, imgSrc] = uigetfile({'*.tiff'}, 'MultiSelect', 'on');
+    [fname, imgSrc] = uigetfile({'*.tiff'}, 'Select images to load',...
+        'MultiSelect', 'on');
     if ~ischar(fname) && ~iscell(fname)
         imOut = 0;
         return;
