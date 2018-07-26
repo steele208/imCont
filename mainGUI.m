@@ -180,29 +180,11 @@ function contButton_Callback(hObject, eventdata, handles)
 % hObject    handle to contButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgNew = {'1) Select image files'; '2) Select metadata in chosen format'};
-msgOld = {'Select image files'; '   (These should include metadata)'};
-loadMsg = 'Loading - Please wait some seconds...';
 switch handles.loadFiles.Value
     case 1
-        usageMsg = makeDialog(msgNew);
-        % load .tiff files, will require metadata to be added
-        handles.output.UserData.imData = imageLoad();
-        delete(usageMsg);
-        handles.output.UserData.imageType = 'new';
-        if ~isstruct(handles.output.UserData.imData)
-            figure1_CloseRequestFcn(hObject, eventdata, handles)
-        end
+        loadFiles(handles);
     case 0
-        usageMsg = makeDialog(msgOld);
-        % Load pre-run .mat - should include metadata
-        [imFile, imPath] = uigetfile('.mat');
-        delete(usageMsg);
-        loadMsg = makeDialog(loadMsg);
-        pause(0.0001);
-        handles.output.UserData.imData = load(strcat(imPath, imFile));
-        delete(loadMsg);
-        handles.output.UserData.imageType = 'old';
+        loadStruct(handles);
 end
 if strcmp(handles.output.UserData.imageType, 'new')
         switch handles.loadXML.Value
@@ -218,6 +200,31 @@ if strcmp(handles.output.UserData.imageType, 'new')
                 handles.output.UserData.metaData = '.mat';
         end
 end
+handles.output.UserData.tracked = tracking(handles.output.UserData.imData);
+
+function loadFiles(handles)
+    msg = {'1) Select image files'; '2) Select metadata in chosen format'};
+    usageMsg = makeDialog(msg);
+    % load .tiff files, will require metadata to be added
+    handles.output.UserData.imData = imageLoad(handles.optionMenu.Value);
+    delete(usageMsg);
+    handles.output.UserData.imageType = 'new';
+    if ~isstruct(handles.output.UserData.imData)
+        figure1_CloseRequestFcn(hObject, eventdata, handles)
+    end
+        
+function loadStruct(handles)
+    msgOld = {'Select image files'; '   (These should include metadata)'};
+    loadMsg = 'Loading - Please wait some seconds...';
+    usageMsg = makeDialog(msgOld);
+    % Load pre-run .mat - should include metadata
+    [imFile, imPath] = uigetfile('.mat');
+    delete(usageMsg);
+    loadMsg = makeDialog(loadMsg);
+    pause(0.0001);
+    handles.output.UserData.imData = load(strcat(imPath, imFile));
+    delete(loadMsg);
+    handles.output.UserData.imageType = 'old';
 
 function d = makeDialog(msg)
 d = dialog('Position', [0 500 250 50], 'Name', 'Loading');

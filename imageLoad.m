@@ -1,4 +1,4 @@
-function imOut = imageLoad()
+function imOut = imageLoad(options)
     warning('off', 'Images:initSize:adjustingMag');
     % get n files (GUI)
     
@@ -36,7 +36,7 @@ function imOut = imageLoad()
 			im(i).Image = imread(strcat(imgSrc, im(i).Name));
 			im(i).Image = uint8(im(i).Image ./ 256);
 			% GUI for setting contrast levels
-            output = new_cTool(im(i).Image); 
+            output = new_cTool(im(i).Image, options); 
 			UserData = output.UserData;
 			delete(output);
 			

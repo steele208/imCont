@@ -49,8 +49,8 @@ for imIdx = 1 : length(images) - 1
     fprintf("Loading Times \t\t[100%%]\n");
     fprintf("Detect Particles \t[%d%%]", round(imIdx/length(images)*20) + 60);
     
-    for curCorner = 1 : length(imageInfo{imIdx, PART_INFO}.Corners)
-        for futCorner = 1 : length(imageInfo{imIdx + 1, PART_INFO}.Corners)
+    for curCorner = 1 : length(imageInfo(imIdx).trkInfo.Corners)
+        for futCorner = 1 : length(imageInfo(imIdx + 1).trkInfo.Corners)
             if imageInfo{imIdx, PART_INFO}.Corners{curCorner}(1) >=...
                     imageInfo{imIdx + 1, PART_INFO}.Corners{futCorner}(1) - 1 ...
                     && imageInfo{imIdx, PART_INFO}.Corners{curCorner}(1) <=...

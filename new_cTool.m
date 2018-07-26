@@ -62,10 +62,15 @@ axes(handles.axes2);
 histogram(handles.axes1.Children.CData, 'Normalization', 'Probability');
 makeLine(handles, 'Floor Line', 0);
 makeLine(handles, 'Roof Line', 255);
+if varargin{2} == 1 % Standard options; Advanced allows normal operation
+    histButton_Callback(hObject, eventdata, handles);
+    submitButton_Callback(hObject, eventdata, handles)
+end
+
 % Update handles structure
 guidata(hObject, handles);
 
-uiwait(handles.figure1);
+
 
 
 % --- Outputs from this function are returned to the command line.
@@ -76,6 +81,9 @@ function varargout = new_cTool_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
+if isempty(fieldnames(handles.output.UserData))
+    uiwait(handles.figure1);
+end
 varargout{1} = handles.output;
 uiresume(handles.figure1);
 
