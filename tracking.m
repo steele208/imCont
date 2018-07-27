@@ -18,7 +18,7 @@ for i = 1 : length(images)
     fprintf("Loading Images \t\t[100%%]\n");
     fprintf("Adjusting Constrast \t[100%%]\n");
     fprintf("Loading Times \t\t[100%%]\n");
-    fprintf("Detect Particles \t[%d%%]", round(i/length(images)*60));
+    fprintf("Mask Images \t\t[%d%%]", round(i/length(images) * 100));
     
     % bw threshold mask
     imageInfo(i).Mask = imbinarize(images(i).Image, 0.25); 
@@ -42,39 +42,54 @@ end
     % Does the corner reference (+/- 1) appear in the next image? 
     % 1 : length - 1
 
-for imIdx = 1 : length(images) - 1
+for imIdx = 1 : length(images)
     clc;
     fprintf("Loading Images \t\t[100%%]\n");
     fprintf("Adjusting Constrast \t[100%%]\n");
     fprintf("Loading Times \t\t[100%%]\n");
-    fprintf("Detect Particles \t[%d%%]", round(imIdx/length(images)*20) + 60);
+    fprintf("Mask Images \t\t[100%%]\n");
+    fprintf("Track Particles \t[%d%%]", round(imIdx/length(images)*100));
     
+    xyThr = 1; % Accepted number of pixels moved between frames;
+    
+    X = 1; % Enum for readability
+    Y = 2; % Enum for readability
     for curCorner = 1 : length(imageInfo(imIdx).trkInfo.Corners)
-        for futCorner = 1 : length(imageInfo(imIdx + 1).trkInfo.Corners)
-            if imageInfo{imIdx, PART_INFO}.Corners{curCorner}(1) >=...
-                    imageInfo{imIdx + 1, PART_INFO}.Corners{futCorner}(1) - 1 ...
-                    && imageInfo{imIdx, PART_INFO}.Corners{curCorner}(1) <=...
-                    imageInfo{imIdx + 1, PART_INFO}.Corners{futCorner}(1) + 1 ...
-                    && imageInfo{imIdx, PART_INFO}.Corners{curCorner}(2) >=...
-                    imageInfo{imIdx + 1, PART_INFO}.Corners{futCorner}(2) - 1 ...
-                    && imageInfo{imIdx, PART_INFO}.Corners{curCorner}(2) <=...
-                    imageInfo{imIdx + 1, PART_INFO}.Corners{futCorner}(2) + 1
+        x = imageInfo(imIdx).trkInfo.Corners{curCorner}(X);
+        y = imageInfo(imIdx).trkInfo.Corners{curCorner}(Y);
+        
+        if imIdx < length(images)
+            for futCorner = 1 : length(imageInfo(imIdx + 1).trkInfo.Corners)
+                x2 = imageInfo(imIdx).trkInfo.Corners{futCorner}(X);
+                y2 = imageInfo(imIdx).trkInfo.Corners{futCorner}(Y);
+                if x2 > x - xyThr && x2 < x + xyThr && ...
+                    y2 > y - xyThr &&  y2 < y + xyThr
+                
+                    imageInfo(imIdx).trkInfo.Corners{curCorner, 2} = 1;
+                    break;
+                end
+            end
+        end
+        if imIdx > 1
+            for prevCorner = 1 : length(imageInfo(imIdx - 1).trkInfo.Corners)
+                x2 = imageInfo(imIdx).trkInfo.Corners{prevCorner}(X);
+                y2 = imageInfo(imIdx).trkInfo.Corners{prevCorner}(Y);
+                if x2 > x - xyThr && x2 < x + xyThr && ...
+                    y2 > y - xyThr &&  y2 < y + xyThr
 
-                imageInfo{imIdx, PART_INFO}.Corners{curCorner, 2} = 1;
+                    imageInfo(imIdx).trkInfo.Corners{curCorner, 2} = 1;
+                    break;
+                else 
+                    imageInfo(imIdx).trkInfo.Corners{curCorner, 2} = 0;
+                end
             end
         end
     end
  end
 
-
+%{
     % Does the corner reference (+/- 1) appear in the previous image?
     % 2 : length
-for imIdx = 2 : length(images)
-    clc;
-    fprintf("Loading Images \t\t[100%%]\n");
-    fprintf("Adjusting Contrast \t[100%%]\n");
-    fprintf("Loading Times \t\t[100%%]\n");
-    fprintf("Detect Particles \t[%d%%]", round(imIdx/length(images)*20) + 80);
     
     for curCorner = 1 : length(imageInfo{imIdx, PART_INFO}.Corners)
         for prevCorner = 1 : length(imageInfo{imIdx - 1, PART_INFO}.Corners)
@@ -95,7 +110,7 @@ for imIdx = 2 : length(images)
         end
     end
 end    
-
+%}
 maxTracked = 0;
 % Remove all points that aren't consistent b/w images
  for imIdx = 1 : length(images)
