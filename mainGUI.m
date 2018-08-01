@@ -265,6 +265,7 @@ function loadStruct_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of loadStruct
 set(handles.loadFiles, 'Value', 0);
 set(handles.loadStruct, 'Value', 1);
+saveTrack_Callback(hObject, eventdata, handles)
 set(handles.loadXML, 'Enable', 'off');
 set(handles.loadMAT, 'Enable', 'off');
 
