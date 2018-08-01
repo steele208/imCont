@@ -120,20 +120,20 @@ maxTracked = 0;
             'UniformOutput', 1);
         imageInfo{imIdx,PART_INFO}.Corners(find(index),:) = []; %#ok<FNDSB>
         %}
-        if length(imageInfo{imIdx,PART_INFO}.Corners) > maxTracked
-            maxTracked = length(imageInfo{imIdx,PART_INFO}.Corners);
+        if length(imageInfo(imIdx).trkInfo.Corners) > maxTracked
+            maxTracked = length(imageInfo(imIdx).trkInfo.Corners);
         end
     %end
  end
     
-%% Evaluate Particle Displacements
+%% Evaluate Particle Displacements -> NEEDS METADATA
 
 UID = 1; %Unique particle ID, will be newly added for inconsistent frames
 particles = cell(maxTracked,1);
-particles{UID}.position(1,1:2) = imageInfo{1,PART_INFO}.Corners{1}(1:2); %initialise struct
+particles{UID}.position(1,1:2) = imageInfo(1).trkInfo.Corners{1}(X:Y); %initialise struct
 %particles{1}.position(1,3) = 0; %initialise struct
 particles{UID}.time{1} = 0; %initialise struct
-particles{UID}.relativeTime = imageInfo{1,IMAGES}.relativeTime;
+particles{UID}.relativeTime = imageInfo(1).relativeTime;
 particles{UID}.set(1) = imageInfo{1,IMAGES}.set;
 particles{UID}.name = imageInfo{1,IMAGES}.name;
 added = 0; %flag 
