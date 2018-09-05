@@ -187,20 +187,24 @@ switch handles.loadFiles.Value
         loadStruct(handles);
 end
 if strcmp(handles.output.UserData.imageType, 'new')
-        switch handles.loadXML.Value
-            case 1
-                % Load .xml
-                [xmlFile, xmlPath] = uigetfile('.xml');
-                handles.output.UserData.xmlLocation = strcat(xmlPath, xmlFile);
-                handles.output.UserData.metaData = '.xml';
-            case 0
-                % Load .mat
-                [xmlFile, xmlPath] = uigetfile('.mat');
-                handles.output.UserData.xmlLocation = strcat(xmlPath, xmlFile);
-                handles.output.UserData.metaData = '.mat';
-        end
+    fprintf("Loading MetaData - May take some minutes!\n");
+    switch handles.loadXML.Value
+        case 1
+            % Load .xml
+            [xmlFile, xmlPath] = uigetfile('.xml');
+            xmlLocation = strcat(xmlPath, xmlFile);
+            handles.output.UserData.xmlLocation = xmlLocation;
+            handles.output.UserData.metaData = readXML(xmlLocation);
+        case 0
+            % Load .mat
+            [xmlFile, xmlPath] = uigetfile('.mat');
+            xmlLocation = strcat(xmlPath, xmlFile);
+            handles.output.UserData.xmlLocation = xmlLocation;
+            handles.output.UserData.metaData = load(xmlLocation);
+    end
 end
-handles.output.UserData.tracked = tracking(handles.output.UserData.imData);
+
+handles.output.UserData.tracked = tracking(handles.output.UserData);
 
 function loadFiles(handles)
     msg = {'1) Select image files'; '2) Select metadata in chosen format'};
@@ -223,8 +227,16 @@ function loadStruct(handles)
     loadMsg = makeDialog(loadMsg);
     pause(0.0001);
     handles.output.UserData.imData = load(strcat(imPath, imFile));
+    if isstruct(handles.output.UserData.imData)
+        f = fields(handles.output.UserData.imData);
+        handles.output.UserData.imData = handles.output.UserData.imData.(f{1});
+    end
     delete(loadMsg);
-    handles.output.UserData.imageType = 'old';
+    if isfield(handles.output.UserData, 'metaData') && ~handles.loadXML.Value
+        handles.output.UserData.imageType = 'old';
+    else
+        handles.output.UserData.imageType = 'new';
+    end
 
 function d = makeDialog(msg)
 d = dialog('Position', [0 500 250 50], 'Name', 'Loading');
@@ -253,9 +265,11 @@ function loadFiles_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of loadFiles
 set(handles.loadFiles, 'Value', 1);
 set(handles.loadStruct, 'Value', 0);
+set(handles.loadXML, 'Value', 1);
+set(handles.loadMAT, 'Value', 0);
 saveTrack_Callback(hObject, eventdata, handles)
-set(handles.loadXML, 'Enable', 'on');
-set(handles.loadMAT, 'Enable', 'on');
+set(handles.loadXML, 'Enable', 'off');
+set(handles.loadMAT, 'Enable', 'off');
 
 % --- Executes on button press in loadStruct.
 function loadStruct_Callback(hObject, eventdata, handles)
@@ -266,8 +280,8 @@ function loadStruct_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of loadStruct
 set(handles.loadFiles, 'Value', 0);
 set(handles.loadStruct, 'Value', 1);
-set(handles.loadXML, 'Enable', 'off');
-set(handles.loadMAT, 'Enable', 'off');
+set(handles.loadXML, 'Enable', 'on');
+set(handles.loadMAT, 'Enable', 'on');
 
 % --- Executes on button press in loadXML.
 function loadXML_Callback(hObject, eventdata, handles)

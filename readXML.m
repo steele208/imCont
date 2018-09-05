@@ -1,7 +1,7 @@
-function output = readXML()
-[xf, xD] = uigetfile('.xml'); % Find file
+function output = readXML(xmlLocation)
+%[xf, xD] = uigetfile('.xml'); % Find file
 tic; % timing 
-tree = xmlread(strcat(xD, xf)); % Read file
+tree = xmlread(xmlLocation); % Read file
 childNode = tree.getChildNodes; % First set of children
 output = struct('Name', [], 'Data', []); % Initialise output structure
 

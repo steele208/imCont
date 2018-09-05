@@ -1,31 +1,35 @@
-function imageInfo = tracking(images, varargin)
+function imageInfo = tracking(userData)
 %% Find All Particles
-% enum references for cell contents
-if isempty(varargin)
+
+if ~isfield(userData, 'minSize')
     minSize = 7;
 else
-    % Advanced Option
-    minSize = varargin{1};
+    minSize = userData.minSize;
+end
+
+if isempty(userData.imData(1).Meta)
+    userData.imData = assignMeta(userData);
 end
 
 IMAGES = 1;
 PART_INFO = 2;
 FINAL_DATA = 3;
 
-imageInfo = images;
-for i = 1 : length(images)
+imageInfo = userData.imData;
+
+for i = 1 : length(imageInfo)
     clc;
     fprintf("Loading Images \t\t[100%%]\n");
     fprintf("Adjusting Constrast \t[100%%]\n");
-    fprintf("Loading Times \t\t[100%%]\n");
-    fprintf("Mask Images \t\t[%d%%]", round(i/length(images) * 100));
+    fprintf("Evaluating Metadata \t[100%%]\n");
+    fprintf("Mask Images \t\t[%d%%]", round(i/length(imageInfo) * 100));
     
     % bw threshold mask
-    imageInfo(i).Mask = imbinarize(images(i).Image, 0.25); 
+    imageInfo(i).Mask = imbinarize(imageInfo(i).Image, 0.25); 
     %remove small particles
     imageInfo(i).Mask = bwareaopen(imageInfo(i).Mask, minSize); 
     % apply mask
-    imageInfo(i).Image = images(i).Image .* uint8(imageInfo(i).Mask); 
+    imageInfo(i).Image = imageInfo(i).Image .* uint8(imageInfo(i).Mask); 
     % particle information
     imageInfo(i).trkInfo = bwconncomp(imageInfo(i).Mask, 8); 
     
@@ -42,13 +46,13 @@ end
     % Does the corner reference (+/- 1) appear in the next image? 
     % 1 : length - 1
 
-for imIdx = 1 : length(images)
+for imIdx = 1 : length(imageInfo)
     clc;
     fprintf("Loading Images \t\t[100%%]\n");
     fprintf("Adjusting Constrast \t[100%%]\n");
-    fprintf("Loading Times \t\t[100%%]\n");
+    fprintf("Evaluating Metadata \t[100%%]\n");
     fprintf("Mask Images \t\t[100%%]\n");
-    fprintf("Track Particles \t[%d%%]", round(imIdx/length(images)*100));
+    fprintf("Detect Particles \t[%d%%]", round(imIdx/length(imageInfo)*100));
     
     xyThr = 1; % Accepted number of pixels moved between frames;
     
@@ -58,7 +62,7 @@ for imIdx = 1 : length(images)
         x = imageInfo(imIdx).trkInfo.Corners{curCorner}(X);
         y = imageInfo(imIdx).trkInfo.Corners{curCorner}(Y);
         
-        if imIdx < length(images)
+        if imIdx < length(imageInfo)
             for futCorner = 1 : length(imageInfo(imIdx + 1).trkInfo.Corners)
                 x2 = imageInfo(imIdx).trkInfo.Corners{futCorner}(X);
                 y2 = imageInfo(imIdx).trkInfo.Corners{futCorner}(Y);
@@ -113,7 +117,7 @@ end
 %}
 maxTracked = 0;
 % Remove all points that aren't consistent b/w images
- for imIdx = 1 : length(images)
+ for imIdx = 1 : length(imageInfo)
     %{
      for crnr = 1 : length(imageInfo{imIdx, PART_INFO}.Corners)
         index = cellfun(@(x) x==0, imageInfo{imIdx,PART_INFO}.Corners(:,2),...
@@ -126,7 +130,7 @@ maxTracked = 0;
     %end
  end
     
-%% Evaluate Particle Displacements -> NEEDS METADATA
+%% Evaluate Particle Displacements 
 
 UID = 1; %Unique particle ID, will be newly added for inconsistent frames
 particles = cell(maxTracked,1);
@@ -142,7 +146,7 @@ for im = 1 : length(images)
     clc;
     fprintf("Loading Images \t\t[100%%]\n");
     fprintf("Adjusting Constrast \t[100%%]\n");
-    fprintf("Loading Times \t\t[100%%]\n");
+    fprintf("Evaluating Metadata \t[100%%]\n");
     fprintf("Detect Particles \t[100%%]\n");
     fprintf("Track Particles \t[%d%%]", round(im/length(images)*100));
     
