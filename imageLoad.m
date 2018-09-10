@@ -22,7 +22,7 @@ function imOut = imageLoad(options)
         fprintf("Loading Images \t\t[%d%%]\n", round(i/numel(fname)*100));
         
         % determine file linkings from name 
-        ID = regexp(im(i).Name, 'r\d+c\d+', 'match');
+        ID = regexp(im(i).Name, 'r\d+c\d+f\d+', 'match');
         im(i).ID = ID{1};
         
         if i > 1 && ~strcmp(im(i).ID, im(i-1).ID)
