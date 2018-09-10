@@ -130,43 +130,41 @@ maxTracked = 0;
     %end
  end
     
-%% Evaluate Particle Displacements 
+%% Evaluate Particle Displacements -> Expanding UID massively, consider rehaul.
 
 UID = 1; %Unique particle ID, will be newly added for inconsistent frames
-particles = cell(maxTracked,1);
-particles{UID}.position(1,1:2) = imageInfo(1).trkInfo.Corners{1}(X:Y); %initialise struct
-%particles{1}.position(1,3) = 0; %initialise struct
-particles{UID}.time{1} = 0; %initialise struct
-particles{UID}.relativeTime = imageInfo(1).relativeTime;
-particles{UID}.set(1) = imageInfo{1,IMAGES}.set;
-particles{UID}.name = imageInfo{1,IMAGES}.name;
+%particles = cell(maxTracked,1);
+particles = struct('Name',[],'Position',zeros(1,2),'Time',[], 'Set', []);
+particles(UID).Position = imageInfo(1).trkInfo.Corners{1}(X:Y); %initialise struct
+particles(UID).Time = imageInfo(1).Meta.RelTime;  %initialise struct
+particles(UID).Set = imageInfo(1).Set;
+particles(UID).Name = imageInfo(1).Name;
 added = 0; %flag 
 
-for im = 1 : length(images)
+for im = 1 : length(imageInfo)
     clc;
     fprintf("Loading Images \t\t[100%%]\n");
     fprintf("Adjusting Constrast \t[100%%]\n");
     fprintf("Evaluating Metadata \t[100%%]\n");
     fprintf("Detect Particles \t[100%%]\n");
-    fprintf("Track Particles \t[%d%%]", round(im/length(images)*100));
+    fprintf("Track Particles \t[%d%%]", round(im/length(imageInfo)*100));
     
-    for prtcl = 1 : length(imageInfo{im,PART_INFO}.Corners)
+    for prtcl = 1 : length(imageInfo(im).trkInfo.Corners)
         for tracked = 1 : UID
-            if particles{tracked}.position(end,1) >= ... % Check correlation
-                    imageInfo{im,PART_INFO}.Corners{prtcl}(1) - 1 ...
-                    && particles{tracked}.position(end,1) <= ...
-                    imageInfo{im,PART_INFO}.Corners{prtcl}(1) + 1 ...
-                    && particles{tracked}.position(end,2) >= ...
-                    imageInfo{im,PART_INFO}.Corners{prtcl}(2) - 1 ...
-                    && particles{tracked}.position(end,2) <= ...
-                    imageInfo{im,PART_INFO}.Corners{prtcl}(2) + 1
+            if particles(tracked).Position(1) >= ... % Check correlation
+                    imageInfo(im).trkInfo.Corners{prtcl}(1) - 1 ...
+                    && particles(tracked).Position(1) <= ...
+                    imageInfo(im).trkInfo.Corners{prtcl}(1) + 1 ...
+                    && particles(tracked).Position(2) >= ...
+                    imageInfo(im).trkInfo.Corners{prtcl}(2) - 1 ...
+                    && particles(tracked).Position(2) <= ...
+                    imageInfo(im).trkInfo.Corners{prtcl}(2) + 1
                     
-                if particles{tracked}.set == imageInfo{im, IMAGES}.set
-                    particles{tracked}.position(end + 1,1:2) = ...
-                        imageInfo{im,PART_INFO}.Corners{prtcl}(1:2); % grab position 
+                if particles(tracked).Set == imageInfo(im).Set
+                    particles(tracked).Position(end + 1,1:2) = ...
+                        imageInfo(im).trkInfo.Corners{prtcl}(1:2); % grab position 
                     %particles{tracked}.position(end,2) = 0; %initalisation for further use
-                    particles{tracked}.time{end + 1,1} = imageInfo{im,IMAGES}.relativeTime - ...
-                        particles{tracked}.relativeTime;
+                    particles(tracked).Time(end + 1,1) = imageInfo(im).Meta.RelTime;
                     added = 1;
                 else
                     added = 0;
@@ -176,12 +174,11 @@ for im = 1 : length(images)
         end
         if ~added % if flagged as un-associated, make new UID & add
             UID = UID + 1;
-            particles{UID}.position(1,1:2) = imageInfo{im,PART_INFO}.Corners{prtcl}(1:2);
+            particles(UID).Position(1,1:2) = imageInfo(im).trkInfo.Corners{prtcl}(1:2);
             %particles{UID}.position(1,2) = 0;
-            particles{UID}.relativeTime = imageInfo{im,IMAGES}.relativeTime;
-            particles{UID}.time{1,1} = 0;
-            particles{UID}.set(1) = imageInfo{im,IMAGES}.set;
-            particles{UID}.name = imageInfo{im,IMAGES}.name;
+            particles(UID).Time = imageInfo(im).Meta.RelTime;            
+            particles(UID).Set = imageInfo(im).Set;
+            particles(UID).name = imageInfo(im).Name;
         end
         added = 0; %reset flag for next interaction
     end

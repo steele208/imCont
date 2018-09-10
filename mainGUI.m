@@ -187,7 +187,9 @@ switch handles.loadFiles.Value
         loadStruct(handles);
 end
 if strcmp(handles.output.UserData.imageType, 'new')
-    fprintf("Loading MetaData - May take some minutes!\n");
+    msg = {'Loading MetaData','May take some minutes!'};
+    usageMsg = makeDialog(msg);
+    
     switch handles.loadXML.Value
         case 1
             % Load .xml
@@ -196,14 +198,12 @@ if strcmp(handles.output.UserData.imageType, 'new')
             handles.output.UserData.xmlLocation = xmlLocation;
             handles.output.UserData.metaData = readXML(xmlLocation);
         case 0
-            % Load .mat
-            [xmlFile, xmlPath] = uigetfile('.mat');
-            xmlLocation = strcat(xmlPath, xmlFile);
-            handles.output.UserData.xmlLocation = xmlLocation;
-            handles.output.UserData.metaData = load(xmlLocation);
+            % Assume that metadata is already incorporated in .mat
+            fprintf("Meta included");
+            pause(1);
     end
 end
-
+delete(usageMsg);
 handles.output.UserData.tracked = tracking(handles.output.UserData);
 
 function loadFiles(handles)
