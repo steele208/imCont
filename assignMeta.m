@@ -3,8 +3,6 @@ function [images] = assignMeta(userData)
     % data and image data:
     images = userData.imData;
     meta = userData.metaData;
-    
-    
     strSize = length(images(1).Name);
     
     for imIdx = 1 : length(images)

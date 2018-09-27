@@ -7,11 +7,16 @@ else
     minSize = userData.minSize;
 end
 
+if ~isfield(userData, 'movDist')
+    movDist = 5;
+else
+    movDist = userData.movDist;
+end
+
 if isempty(userData.imData(1).Meta)
     userData.imData = assignMeta(userData);
 end
 
-%FINAL_DATA = 3;
 
 imageInfo = userData.imData;
 if isempty(imageInfo(1).Mask)
@@ -55,8 +60,11 @@ for im = 1 : length(imageInfo)
                 end
             else
                 prtclLoc = imageInfo(im).trkInfo.Corners{prtcl}(1:2);
-                prtclIdx = find(all(vertcat(particles.lastPos) >= prtclLoc - 5 &...
-                    vertcat(particles.lastPos) <= prtclLoc + 5, 2),1);
+                % find the first corresponding last location that fit's all
+                % on dimension 2, i.e. fits with x & y coord. 
+                prtclIdx = find(all(vertcat(particles.lastPos) >= ...
+                    prtclLoc - movDist & vertcat(particles.lastPos) <= ...
+                    prtclLoc + movDist, 2),1);
 
                 % If a corresponding particle is found, add it to tracked
                 % stem, else add a new particle
@@ -74,17 +82,15 @@ for im = 1 : length(imageInfo)
             end
  
         if ~added % if flagged as un-associated, make new particle stem
-            particles(end + 1).Name = imageInfo(im).Name;
+            particles(end + 1).Name = imageInfo(im).Name; %#ok<AGROW> % pre-allocation may not be feasable
             particles(end).Position(1,1:2) = imageInfo(im).trkInfo.Corners{prtcl}(1:2);
             particles(end).Time = imageInfo(im).Meta.RelTime;            
             particles(end).lastPos = imageInfo(im).trkInfo.Corners{prtcl}(X:Y);
         end
     end
     % Save 'particles' tracking data into userData struct for each image
-    userData.tracked{imageInfo(im).Set} = particles;
+    userData.tracked{imageInfo(im).Set,1} = particles;
 end
-userData.imData = imageInfo;
 
-%% OUTPUTS GROUPED INTO USERDATA STRUCT
-%imageInfo{1,FINAL_DATA} = particles; % package particle info into exported cell structure
-%imageInfo{2,FINAL_DATA} = maxLength;
+% All outputs exported via userData struct
+userData.imData = imageInfo;

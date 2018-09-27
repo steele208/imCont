@@ -22,7 +22,7 @@ function varargout = mainGUI(varargin)
 
 % Edit the above text to modify the response to help mainGUI
 
-% Last Modified by GUIDE v2.5 12-Jul-2018 10:32:23
+% Last Modified by GUIDE v2.5 20-Sep-2018 16:11:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -203,8 +203,25 @@ if strcmp(handles.output.UserData.imageType, 'new')
             pause(1);
     end
 end
+handles.output.UserData.save = saveState(handles);
 delete(usageMsg);
 handles.output.UserData.tracked = tracking(handles.output.UserData);
+
+function saveFlag = saveState(handles)
+% Determine a save state for a later function. 
+%   3) All     ->  Images, tracking data, summary data & graphs
+%   2) Im      ->  Just processed images (inc. meta)
+%   1) Out     ->  Just summary data & graphs
+%   0) None    ->  Don't save anything
+    if handles.saveIm.Value && handles.saveTrack.Value
+        saveFlag = 3;
+    elseif handles.saveIm.Value
+        saveFlag = 2;
+    elseif handles.saveTrack.Value
+        saveFlag = 1;
+    else 
+        saveFlag = 0;
+    end
 
 function loadFiles(handles)
     msg = {'1) Select image files'; '2) Select metadata in chosen format'};
@@ -334,7 +351,7 @@ function saveIm_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of saveIm
 set(handles.saveNo, 'Value', 0);
 set(handles.saveIm, 'Value', 1);
-set(handles.saveTrack, 'Value', 0);
+
 
 % --- Executes on button press in saveNo.
 function saveNo_Callback(hObject, eventdata, handles)
@@ -355,7 +372,6 @@ function saveTrack_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of saveTrack
 set(handles.saveNo, 'Value', 0);
-set(handles.saveIm, 'Value', 0);
 set(handles.saveTrack, 'Value', 1);
 
 % --- Executes on button press in videoSelect.
@@ -377,11 +393,74 @@ function optionMenu_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns optionMenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from optionMenu
+switch(get(handles.optionMenu, 'Value'))
+    case 1
+        set(handles.uipanel10, 'Visible', 'off');
+        
+    case 2
+        set(handles.uipanel10, 'Visible', 'on');
+        
+end
 
 
 % --- Executes during object creation, after setting all properties.
 function optionMenu_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to optionMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in radiobutton11.
+function radiobutton11_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton11
+
+
+
+function edit1_Callback(hObject, eventdata, handles)
+% hObject    handle to edit1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit1 as text
+%        str2double(get(hObject,'String')) returns contents of edit1 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu13.
+function popupmenu13_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu13 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu13 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu13
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu13_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu13 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

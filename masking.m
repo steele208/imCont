@@ -1,6 +1,5 @@
 function images = masking(images, minSize)
 
-
 for i = 1 : length(images)
     clc;
     fprintf("Loading Images \t\t[100%%]\n");
