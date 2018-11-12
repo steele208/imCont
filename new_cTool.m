@@ -269,7 +269,7 @@ axes(handles.axes2);
 H = histogram(handles.axes1.Children.CData, 'BinEdges', 1:256, ...
     'Normalization', 'CumCount');
 histVal = H.Values;
-thresh = 0.999 * numel(handles.axes1.Children.CData);
+thresh = 0.999 * numel(find(handles.axes1.Children.CData==1));
 floor = find(histVal > thresh, 1);
 roof = floor + 2;
 mid = floor + 1;

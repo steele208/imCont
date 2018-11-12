@@ -203,9 +203,12 @@ if strcmp(handles.output.UserData.imageType, 'new')
             pause(1);
     end
 end
-handles.output.UserData.save = saveState(handles);
+handles.output.UserData.save = saveState(handles); 
 delete(usageMsg);
-handles.output.UserData.tracked = tracking(handles.output.UserData);
+handles.output.UserData = tracking(handles.output.UserData);
+saveOutputs(handles.output.UserData); % Enter saving routines
+I = imread('pout.tif');
+
 
 function saveFlag = saveState(handles)
 % Determine a save state for a later function. 
@@ -350,7 +353,7 @@ function saveIm_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of saveIm
 set(handles.saveNo, 'Value', 0);
-set(handles.saveIm, 'Value', 1);
+set(handles.saveIm, 'Value', hObject.Value);
 
 
 % --- Executes on button press in saveNo.
@@ -372,7 +375,7 @@ function saveTrack_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of saveTrack
 set(handles.saveNo, 'Value', 0);
-set(handles.saveTrack, 'Value', 1);
+set(handles.saveTrack, 'Value', hObject.Value);
 
 % --- Executes on button press in videoSelect.
 function videoSelect_Callback(hObject, eventdata, handles)

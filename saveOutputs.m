@@ -3,7 +3,7 @@ curFolder = pwd;
 msgStem = 'Select Location to Save ';
 msg{3} = 'Successfully Saved to:';
 
-if userData.Save
+if userData.save
     doSave = 1;
 else 
     doSave = 0;
@@ -14,7 +14,7 @@ while(doSave == 1)
     % save request to be asked again; if saving isn't selected then the 
     % while loop won't enter
         % images
-        if userData.Save == 3 || userData.Save == 2
+        if userData.save == 3 || userData.save == 2
             msg{1} = strcat(msgStem, ' Images');
             hdl = makeDialog(msg{1});
             [file, path] = uiputfile('*.mat', 'Save Data to File');
@@ -30,13 +30,13 @@ while(doSave == 1)
         end
         
         % Data 
-        if userData.Save == 3 || userData.Save == 1
+        if userData.save == 3 || userData.save == 1
             cd(curFolder);
             msg{1} = strcat(msgStem, ' Data Outputs');
             hdl2 = makeDialog(msg{1});
             [file, path] = uiputfile('*.mat', 'Save Data to File');
 
-            if makeSave(userData.Data, path)
+            if makeSave(userData.imData, strcat(path, file))
                 answer = questdlg('Save Failed, Try again?');
                 switch answer 
                     case 'Yes'
@@ -55,10 +55,15 @@ while(doSave == 1)
             end
         end
 end
-delete(hdl);
+if exist('hdl', 'var')
+    delete(hdl);
+end
+if exist('hdl2', 'var')
+    delete(hdl2);
+end
    
-function errorFlag = makeSave(variable, path)
-    if path == 0 
+function errorFlag = makeSave(Var, path)
+    if any(path == 0 )|| isempty(Var)
         answer = questdlg('Save Failed, Try again?');
         switch answer 
             case 'Yes'
@@ -69,7 +74,7 @@ function errorFlag = makeSave(variable, path)
                 errorFlag = 2;
         end
     else
-        save(path, variable, '-v7.3');
+        save(path, 'Var', '-v7.3');
         errorFlag = 0;
     end
     
