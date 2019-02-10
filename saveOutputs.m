@@ -36,7 +36,7 @@ while(doSave == 1)
             hdl2 = makeDialog(msg{1});
             [file, path] = uiputfile('*.mat', 'Save Data to File');
 
-            if makeSave(userData.imData, strcat(path, file))
+            if makeSave(userData, strcat(path, file))
                 answer = questdlg('Save Failed, Try again?');
                 switch answer 
                     case 'Yes'
@@ -62,8 +62,8 @@ if exist('hdl2', 'var')
     delete(hdl2);
 end
    
-function errorFlag = makeSave(Var, path)
-    if any(path == 0 )|| isempty(Var)
+function errorFlag = makeSave(uRhe_Out, path)
+    if any(path == 0 )|| isempty(uRhe_Out)
         answer = questdlg('Save Failed, Try again?');
         switch answer 
             case 'Yes'
@@ -74,7 +74,7 @@ function errorFlag = makeSave(Var, path)
                 errorFlag = 2;
         end
     else
-        save(path, 'Var', '-v7.3');
+        save(path, 'uRhe_Out', '-v7.3');
         errorFlag = 0;
     end
     

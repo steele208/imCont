@@ -206,8 +206,9 @@ end
 handles.output.UserData.save = saveState(handles); 
 delete(usageMsg);
 handles.output.UserData = tracking(handles.output.UserData);
+pause(0.1);
 saveOutputs(handles.output.UserData); % Enter saving routines
-I = imread('pout.tif');
+
 
 
 function saveFlag = saveState(handles)
