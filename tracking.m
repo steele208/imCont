@@ -91,6 +91,8 @@ for im = 1 : length(imageInfo)
     % Save 'particles' tracking data into userData struct for each image
     userData.tracked{imageInfo(im).Set,1} = particles;
 end
+%% PATH CALCULATION (PER PARTICLE)
 
-% All outputs exported via userData struct
+
+%% All outputs exported via userData struct
 userData.imData = imageInfo;
