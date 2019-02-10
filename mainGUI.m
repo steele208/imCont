@@ -202,20 +202,25 @@ if strcmp(handles.output.UserData.imageType, 'new')
             fprintf("Meta included");
             pause(1);
     end
+else
+    msg = {'Loading Pre-processed Data','May take some minutes!'};
+    usageMsg = makeDialog(msg);
 end
 handles.output.UserData.save = saveState(handles); 
 delete(usageMsg);
-handles.output.UserData = tracking(handles.output.UserData);
-pause(0.1);
+if strcmp(handles.output.UserData.imageType,'new')
+    handles.output.UserData = tracking(handles.output.UserData);
+end
+%pause(0.1);
 saveOutputs(handles.output.UserData); % Enter saving routines
 
 
 
 function saveFlag = saveState(handles)
 % Determine a save state for a later function. 
-%   3) All     ->  Images, tracking data, summary data & graphs
-%   2) Im      ->  Just processed images (inc. meta)
-%   1) Out     ->  Just summary data & graphs
+%   3) All     ->  Data & graphs
+%   2) Im      ->  Graphs, just paths etc.
+%   1) Out     ->  All data, inc. images & trcking
 %   0) None    ->  Don't save anything
     if handles.saveIm.Value && handles.saveTrack.Value
         saveFlag = 3;
@@ -247,12 +252,18 @@ function loadStruct(handles)
     delete(usageMsg);
     loadMsg = makeDialog(loadMsg);
     pause(0.0001);
-    handles.output.UserData.imData = load(strcat(imPath, imFile));
+    handles.output.UserData = load(strcat(imPath, imFile));
+    %{
     if isstruct(handles.output.UserData.imData)
         f = fields(handles.output.UserData.imData);
         handles.output.UserData.imData = handles.output.UserData.imData.(f{1});
     end
+    %}
     delete(loadMsg);
+    if length(fields(handles.output.UserData)) == 1
+        f = fields(handles.output.UserData);
+        handles.output.UserData = handles.output.UserData.(f{1});
+    end
     if isfield(handles.output.UserData, 'metaData') && ~handles.loadXML.Value
         handles.output.UserData.imageType = 'old';
     else
