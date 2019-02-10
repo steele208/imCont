@@ -15,44 +15,30 @@ while(doSave == 1)
     % while loop won't enter
         % images
         if userData.save == 3 || userData.save == 2
-            msg{1} = strcat(msgStem, ' Images');
+            msg{1} = strcat(msgStem, ' Graphs');
             hdl = makeDialog(msg{1});
             [file, path] = uiputfile('*.mat', 'Save Data to File');
-            
-            doSave = makeSave(userData, path); % Error, might be ignored 
-            
-            if ~doSave    
-            msg{4} = strcat(path, file);
-            uicontrol('Parent', hdl, 'Style', 'text',...
-                'Position',[0 -5 300 90],...
-                'String', msg);
-            end
+            disp(file);
+            saveErr = makeSave(userData, path, file); % Error, might be ignored 
         end
         
         % Data 
         if userData.save == 3 || userData.save == 1
             cd(curFolder);
-            msg{1} = strcat(msgStem, ' Data Outputs');
+            msg{1} = strcat(msgStem, ' Data');
             hdl2 = makeDialog(msg{1});
             [file, path] = uiputfile('*.mat', 'Save Data to File');
-
-            if makeSave(userData, strcat(path, file))
-                answer = questdlg('Save Failed, Try again?');
-                switch answer 
-                    case 'Yes'
-                        doSave = 1;
-                    case 'No'
-                        doSave = 0;
-                    case 'Cancel' 
-                        doSave = 0;
-                end
-            else
-                msg{4} = strcat(path, file);
-                uicontrol('Parent', hdl2, 'Style', 'text',...
-                    'Position',[0 -5 300 90],...
-                    'String', msg);
-                doSave = 0;
-            end
+            saveErr = makeSave(userData, path, file); % Error, might be ignored 
+        end
+        
+        if ~saveErr
+            msg{4} = strcat(path, file);
+            uicontrol('Parent', hdl, 'Style', 'text',...
+                'Position',[0 -5 300 90],...
+                'String', msg);
+            doSave = 0;
+        elseif saveErr == 2
+            doSave = 0;
         end
 end
 if exist('hdl', 'var')
@@ -62,8 +48,8 @@ if exist('hdl2', 'var')
     delete(hdl2);
 end
    
-function errorFlag = makeSave(uRhe_Out, path)
-    if any(path == 0 )|| isempty(uRhe_Out)
+function errorFlag = makeSave(uRhe_Out, path, file)
+    if ~file || ~path || isempty(uRhe_Out)
         answer = questdlg('Save Failed, Try again?');
         switch answer 
             case 'Yes'
@@ -74,7 +60,7 @@ function errorFlag = makeSave(uRhe_Out, path)
                 errorFlag = 2;
         end
     else
-        save(path, 'uRhe_Out', '-v7.3');
+        save(strcat(path,file), 'uRhe_Out', '-v7.3');
         errorFlag = 0;
     end
     
