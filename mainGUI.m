@@ -212,6 +212,8 @@ if strcmp(handles.output.UserData.imageType,'new')
     handles.output.UserData = tracking(handles.output.UserData);
 end
 %pause(0.1);
+handles.output.UserData = path_detection(handles.output.UserData);
+graph_results(handles.output.UserData);
 saveOutputs(handles.output.UserData); % Enter saving routines
 
 

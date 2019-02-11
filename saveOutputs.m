@@ -26,7 +26,7 @@ while(doSave == 1)
         if userData.save == 3 || userData.save == 1
             cd(curFolder);
             msg{1} = strcat(msgStem, ' Data');
-            hdl2 = makeDialog(msg{1});
+            hdl = makeDialog(msg{1});
             [file, path] = uiputfile('*.mat', 'Save Data to File');
             saveErr = makeSave(userData, path, file); % Error, might be ignored 
         end
@@ -44,12 +44,9 @@ end
 if exist('hdl', 'var')
     delete(hdl);
 end
-if exist('hdl2', 'var')
-    delete(hdl2);
-end
    
 function errorFlag = makeSave(uRhe_Out, path, file)
-    if ~file || ~path || isempty(uRhe_Out)
+    if any(~file) || any(~path) || isempty(uRhe_Out)
         answer = questdlg('Save Failed, Try again?');
         switch answer 
             case 'Yes'
