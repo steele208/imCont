@@ -6,8 +6,10 @@ for set = 1 : length(userData.tracked)
         userData.tracked{set,1}(prtcl).AbsTime(1) = 0;
         userData.tracked{set,1}(prtcl).Displacement(1) = 0;
         userData.tracked{set,1}(prtcl).Position(1,3) = 0;
-        userData.tracked{set,1}(1).AvgPath = ...
+        if prtcl == 1
+            userData.tracked{set,1}(1).AvgPath = ...
             userData.tracked{set,1}(1).Position(:,3);
+        end
         if length(userData.tracked{set,1}(prtcl).Time) < 2
             skipped(end + 1) = prtcl; %#ok<AGROW>
             continue
@@ -32,7 +34,7 @@ for set = 1 : length(userData.tracked)
         % pad master path for mean path calculation
             if length(userData.tracked{set,1}(prtcl).Time) < ...
                     length(userData.tracked{set,1}(1).AvgPath)
-                pad = length(userData.tracked{set,1}(1).Time);
+                pad = length(userData.tracked{set,1}(1).AvgPath);
                 userData.tracked{set,1}(prtcl).Position(pad,3) = 0;
             elseif length(userData.tracked{set,1}(prtcl).Time) > ...
                     length(userData.tracked{set,1}(1).AvgPath)
