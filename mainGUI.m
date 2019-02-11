@@ -182,9 +182,13 @@ function contButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 switch handles.loadFiles.Value
     case 1
-        loadFiles(handles);
+        if loadFiles(handles)
+            return;
+        end
     case 0
-        loadStruct(handles);
+        if loadStruct(handles)
+            return;
+        end
 end
 if strcmp(handles.output.UserData.imageType, 'new')
     msg = {'Loading MetaData','May take some minutes!'};
@@ -234,7 +238,7 @@ function saveFlag = saveState(handles)
         saveFlag = 0;
     end
 
-function loadFiles(handles)
+    function flag = loadFiles(handles)
     msg = {'1) Select image files'; '2) Select metadata in chosen format'};
     usageMsg = makeDialog(msg);
     % load .tiff files, will require metadata to be added
@@ -242,16 +246,20 @@ function loadFiles(handles)
     delete(usageMsg);
     handles.output.UserData.imageType = 'new';
     if ~isstruct(handles.output.UserData.imData)
-        figure1_CloseRequestFcn(hObject, eventdata, handles)
+        flag = 1;
     end
         
-function loadStruct(handles)
+        function flag = loadStruct(handles)
     msgOld = {'Select image files'; '   (These should include metadata)'};
     loadMsg = 'Loading - Please wait some seconds...';
     usageMsg = makeDialog(msgOld);
     % Load pre-run .mat - should include metadata
     [imFile, imPath] = uigetfile('.mat');
     delete(usageMsg);
+    if any(imFile == 0) || any(imPath == 0)
+        flag = 1;
+        return
+    end
     loadMsg = makeDialog(loadMsg);
     pause(0.0001);
     handles.output.UserData = load(strcat(imPath, imFile));
@@ -286,6 +294,7 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 
 % Hint: delete(hObject) closes the figure
 delete(handles.figure1);
+
 
 
 
