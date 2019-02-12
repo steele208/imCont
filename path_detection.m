@@ -15,40 +15,43 @@ for set = 1 : length(userData.tracked)
             continue
         end
         for pth = 2 : size(userData.tracked{set,1}(prtcl).Position,1)
-        % find squared difference / path movement
+            % find squared difference / path movement
             d = sqrt(...
                 (userData.tracked{set,1}(prtcl).Position(pth,1) - ...
                 userData.tracked{set,1}(prtcl).Position(pth-1,1))^2 ...
               + (userData.tracked{set,1}(prtcl).Position(pth,2) - ...
               userData.tracked{set,1}(prtcl).Position(pth-1,2))^2);
-        % Absolute path length
+            % Absolute path length
             userData.tracked{set,1}(prtcl).Position(pth,3) = ...
                 d + userData.tracked{set,1}(prtcl).Position(pth-1,3);
-        % Sum of displacement
+            % Sum of displacement
             userData.tracked{set,1}(prtcl).Displacement(1) = ...
                 d + userData.tracked{set,1}(prtcl).Displacement(1);
-        % time as absolute
+            % time as absolute
             userData.tracked{set,1}(prtcl).AbsTime(pth) = ...
                 userData.tracked{set,1}(prtcl).Time(pth) - ...
                 userData.tracked{set,1}(prtcl).Time(1); 
-        % pad master path for mean path calculation
-            if length(userData.tracked{set,1}(prtcl).Time) < ...
-                    length(userData.tracked{set,1}(1).AvgPath)
-                pad = length(userData.tracked{set,1}(1).AvgPath);
-                userData.tracked{set,1}(prtcl).Position(pad,3) = 0;
-            elseif length(userData.tracked{set,1}(prtcl).Time) > ...
-                    length(userData.tracked{set,1}(1).AvgPath)
-                pad = length(userData.tracked{set,1}(prtcl).Time);
-                userData.tracked{set,1}(1).AvgPath(pad,1) = 0;
-            end
-            userData.tracked{set,1}(1).AvgPath = ...
-                userData.tracked{set,1}(1).AvgPath + ...
-                userData.tracked{set,1}(prtcl).Position(:,3);
+
         end
-        % division for avg path
-        userData.tracked{set,1}(1).AvgPath = ...
-            userData.tracked{set,1}(1).AvgPath ./ ...
-            size(userData.tracked{set,1}(prtcl).Position,1);
+        
+        % pad master path for mean path calculation
+        % Grouped as matrix, mean path is calculated at time of graphing
+        % using nanmean(M,2) for row-wise mean.
+        if length(userData.tracked{set,1}(prtcl).Time) < ...
+                length(userData.tracked{set,1}(1).AvgPath)
+            len = length(userData.tracked{set,1}(prtcl).Time);
+            pad = size(userData.tracked{set,1}(1).AvgPath,1);
+            userData.tracked{set,1}(prtcl).Position(len:pad,3) = NaN;
+        elseif length(userData.tracked{set,1}(prtcl).Time) > ...
+                length(userData.tracked{set,1}(1).AvgPath)
+            len = size(userData.tracked{set,1}(1).AvgPath,1);
+            pad = length(userData.tracked{set,1}(prtcl).Time);
+            userData.tracked{set,1}(1).AvgPath(len:pad,1) = NaN;
+        end
+        userData.tracked{set,1}(1).AvgPath(:,end+1) = ...
+            userData.tracked{set,1}(prtcl).Position(:,3);
+        
     end
     userData.tracked{set,1}(skipped) = [];
+    userData.tracked{set,1}(1).AvgPath(:,1) = [];
 end
