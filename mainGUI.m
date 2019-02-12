@@ -247,6 +247,8 @@ function saveFlag = saveState(handles)
     handles.output.UserData.imageType = 'new';
     if ~isstruct(handles.output.UserData.imData)
         flag = 1;
+    else
+        flag = 0;
     end
         
         function flag = loadStruct(handles)
@@ -279,6 +281,7 @@ function saveFlag = saveState(handles)
     else
         handles.output.UserData.imageType = 'new';
     end
+    flag = 0;
 
 function d = makeDialog(msg)
 d = dialog('Position', [0 500 250 50], 'Name', 'Loading');
