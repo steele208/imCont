@@ -25,7 +25,10 @@ for set = 1 : length(userData.tracked)
     end
     ax2 = subplot(2, 1, 2);
     hold on
-    plot(userData.tracked{set,1}(1).AbsTime,...
-        res.*nanmean(userData.tracked{set,1}(1).AvgPath,2));
+    plot(nanmean(userData.tracked{set,1}(1).AvgTime,2),...
+        res.*nanmean(userData.tracked{set,1}(1).AvgPath,2).^2);
+    ylabel('Distance Travelled (m)');
+    xlabel('Time (ms)');
+    title('Mean Squared Particle Displacement');
     linkaxes([ax1, ax2], 'xy');
 end
