@@ -14,7 +14,7 @@ for set = 1 : length(userData.tracked)
     figure(set)
     
     for pth = 1 : length(userData.tracked{set,1})
-        subplot(2, 1, 1);
+        ax1 = subplot(2, 1, 1);
         hold on
         plot(userData.tracked{set,1}(pth).AbsTime,...
             res.*userData.tracked{set,1}(pth).Position...
@@ -23,8 +23,9 @@ for set = 1 : length(userData.tracked)
         xlabel('Time (ms)');
         title('Particle Displacement Due To Brownian Motion');
     end
-    subplot(2, 1, 2);
+    ax2 = subplot(2, 1, 2);
     hold on
     plot(userData.tracked{set,1}(1).AbsTime,...
-        res.*userData.tracked{set,1}(1).AvgPath);
+        res.*nanmean(userData.tracked{set,1}(1).AvgPath,2));
+    linkaxes([ax1, ax2], 'xy');
 end
