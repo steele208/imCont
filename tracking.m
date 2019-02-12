@@ -69,13 +69,20 @@ for im = 1 : length(imageInfo)
                 % If a corresponding particle is found, add it to tracked
                 % stem, else add a new particle
                 if prtclIdx
-                    particles(prtclIdx).Position(end + 1,1:2) = ...
-                        imageInfo(im).trkInfo.Corners{prtcl}(X:Y); 
-                    particles(prtclIdx).lastPos = ...
-                        imageInfo(im).trkInfo.Corners{prtcl}(X:Y);
-                    particles(prtclIdx).Time(end + 1,1) = ...
-                        imageInfo(im).Meta.RelTime;
-                    added = 1;
+                    if all(particles(prtclIdx).Position(end,1:2) == ...
+                            imageInfo(im).trkInfo.Corners{prtcl}(X:Y)) ...
+                            && particles(prtclIdx).Time(end,1) == ...
+                            imageInfo(im).Meta.RelTime
+                        added = 1;
+                    else
+                        particles(prtclIdx).Position(end + 1,1:2) = ...
+                            imageInfo(im).trkInfo.Corners{prtcl}(X:Y); 
+                        particles(prtclIdx).lastPos = ...
+                            imageInfo(im).trkInfo.Corners{prtcl}(X:Y);
+                        particles(prtclIdx).Time(end + 1,1) = ...
+                            imageInfo(im).Meta.RelTime;
+                        added = 1;
+                    end
                 else
                     added = 0;
                 end
@@ -91,8 +98,5 @@ for im = 1 : length(imageInfo)
     % Save 'particles' tracking data into userData struct for each image
     userData.tracked{imageInfo(im).Set,1} = particles;
 end
-%% PATH CALCULATION (PER PARTICLE)
-
-
 %% All outputs exported via userData struct
 userData.imData = imageInfo;
