@@ -8,7 +8,10 @@ for set = 1 : length(userData.tracked)
         userData.tracked{set,1}(prtcl).Position(1,3) = 0;
         if prtcl == 1
             userData.tracked{set,1}(1).AvgPath = ...
-            userData.tracked{set,1}(1).Position(:,3);
+                userData.tracked{set,1}(1).Position(:,3);
+        
+            userData.tracked{set,1}(1).AvgTime = ...
+                userData.tracked{set,1}(1).Time;
         end
         if length(userData.tracked{set,1}(prtcl).Time) < 2
             skipped(end + 1) = prtcl; %#ok<AGROW>
@@ -51,7 +54,22 @@ for set = 1 : length(userData.tracked)
         userData.tracked{set,1}(1).AvgPath(:,end+1) = ...
             userData.tracked{set,1}(prtcl).Position(:,3);
         
+        if length(userData.tracked{set,1}(prtcl).Time) < ...
+                length(userData.tracked{set,1}(1).AvgTime)
+            len = length(userData.tracked{set,1}(prtcl).Time);
+            pad = size(userData.tracked{set,1}(1).AvgTime,1);
+            userData.tracked{set,1}(prtcl).Time(len:pad,1) = NaN;
+        elseif length(userData.tracked{set,1}(prtcl).Time) > ...
+                length(userData.tracked{set,1}(1).AvgTime)
+            len = size(userData.tracked{set,1}(1).AvgTime,1);
+            pad = length(userData.tracked{set,1}(prtcl).Time);
+            userData.tracked{set,1}(1).AvgTime(len:pad,1) = NaN;
+        end
+        userData.tracked{set,1}(1).AvgTime(:,end+1) = ...
+            userData.tracked{set,1}(prtcl).Time;
+        
     end
     userData.tracked{set,1}(skipped) = [];
     userData.tracked{set,1}(1).AvgPath(:,1) = [];
+    userData.tracked{set,1}(1).AvgTime(:,1) = [];
 end
