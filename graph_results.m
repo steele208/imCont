@@ -1,4 +1,4 @@
-function graph_results(userData)
+function userData = graph_results(userData)
 %{
 % Needs:
 %   - Mean/nanmean per point
@@ -9,9 +9,9 @@ function graph_results(userData)
 % Assuming that all images are at the same resolution:
 res = userData.metaData(1).Data.ImageResolutionX;
 res = str2double(res);
-
+userData.figure = [];
 for set = 1 : length(userData.tracked)
-    figure(set)
+     userData.figure{end+1} = figure(set);
     
     for pth = 1 : length(userData.tracked{set,1})
         ax1 = subplot(2, 1, 1);
@@ -21,14 +21,16 @@ for set = 1 : length(userData.tracked)
             (1:length(userData.tracked{set,1}(pth).AbsTime),3));
         ylabel('Distance Travelled (m)');
         xlabel('Time (ms)');
-        title('Particle Displacement Due To Brownian Motion');
+        title({'Particle Displacement Due To Brownian Motion',...
+            strcat(' - Set: ', num2str(set))});
     end
     ax2 = subplot(2, 1, 2);
     hold on
     plot(nanmean(userData.tracked{set,1}(1).AvgTime,2),...
-        res.*nanmean(userData.tracked{set,1}(1).AvgPath,2).^2);
+        res.*nanmean(userData.tracked{set,1}(1).AvgPath,2));
     ylabel('Distance Travelled (m)');
     xlabel('Time (ms)');
     title('Mean Squared Particle Displacement');
     linkaxes([ax1, ax2], 'xy');
+    %userData.figure{end+1} = ax1.Parent;
 end
