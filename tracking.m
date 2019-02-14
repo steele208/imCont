@@ -14,9 +14,9 @@ else
     movDist = userData.movDist;
 end
 
-if isempty(userData.imData(1).Meta)
+%if isempty(userData.imData(1).Meta)
     userData.imData = assignMeta(handles);
-end
+%end
 
 
 imageInfo = userData.imData;

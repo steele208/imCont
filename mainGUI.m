@@ -209,20 +209,48 @@ switch handles.loadFiles.Value
         handles.output.UserData = tracking(handles);
         handles = path_detection(handles);
     case 0 % Load Data
-        msg = {'Loading Pre-processed Data','May take some minutes!'};
-        handles.text20.String = msg;
-        if loadStruct(handles)
-            return;
+        switch handles.loadXML.Value
+            case 0 % Load Data as is
+                msg = {'Loading Pre-processed Data','May take some minutes!'};
+                handles.text20.String = msg;
+                tic
+                handles = loadStruct(handles);
+                if handles.output.UserData.loadSFlag
+                    return;
+                end
+                toc
+            case 1 % change associated meta
+                tic
+                handles = loadStruct(handles);
+                if handles.output.UserData.loadSFlag
+                    return;
+                end
+                toc
+                handles = findXML(handles);
+                if handles.output.UserData.findXFlag
+                    return;
+                end
+                %load metadata
+                msg = {'Loading MetaData','May take some minutes!'};
+                handles.text20.String = msg;
+                handles.output.UserData.metaData = ...
+                    readXML(handles.output.UserData.xmlLocation);
+                handles.output.UserData = tracking(handles);
+                handles = path_detection(handles);
         end
 end
 
-handles.output.UserData.save = saveState(handles); 
 handles.output.UserData = graph_results(handles.output.UserData);
+handles.output.UserData.save = saveState(handles); 
 saveOutputs(handles); % Enter saving routines
 
 function handles = findXML(handles)
-    [xmlFile, xmlPath] = uigetfile('.xml',...
-        'path', handles.output.UserData.filepath);
+    if isfield(handles.output.UserData, 'xmlLocation')
+        [xmlFile, xmlPath] = uigetfile('.xml',...
+            'path', handles.output.UserData.xmlLocation);
+    else
+        [xmlFile, xmlPath] = uigetfile('.xml');
+    end
     xmlLocation = strcat(xmlPath, xmlFile);
     if any(xmlLocation == 0)
         handles.output.UserData.findXFlag = 1;
@@ -262,14 +290,14 @@ function handles = findFiles(handles)
     handles.output.UserData.filepath = filepath;
     handles.output.UserData.findFFlag = 0;
         
-        function flag = loadStruct(handles)
+function handles = loadStruct(handles)
     msgOld = 'Select Analysed Data (.mat)';
     loadMsg = {'Loading - Please wait','May take some seconds...'};
     handles.text20.String = msgOld;
     % Load pre-run .mat - should include metadata
     [imFile, imPath] = uigetfile('.mat');
     if any(imFile == 0) || any(imPath == 0)
-        flag = 1;
+        handles.output.UserData.loadSFlag = 1;
         return
     end
     handles.text20.String = loadMsg;
@@ -279,7 +307,7 @@ function handles = findFiles(handles)
         f = fields(handles.output.UserData);
         handles.output.UserData = handles.output.UserData.(f{1});
     end
-    flag = 0;
+    handles.output.UserData.loadSFlag = 0;
 
     
 % --- Executes when user attempts to close figure1.
