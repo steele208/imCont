@@ -11,10 +11,10 @@ res = userData.metaData(1).Data.ImageResolutionX;
 res = str2double(res);
 userData.figure = [];
 for set = 1 : length(userData.tracked)
-     userData.figure{end+1} = figure(set);
+    userData.figure{end+1} = figure(set+1);
     
     for pth = 1 : length(userData.tracked{set,1})
-        ax1 = subplot(2, 1, 1);
+        subplot(2, 1, 1);
         hold on
         plot(userData.tracked{set,1}(pth).AbsTime,...
             res.*userData.tracked{set,1}(pth).Position...
@@ -24,13 +24,19 @@ for set = 1 : length(userData.tracked)
         title({'Particle Displacement Due To Brownian Motion',...
             strcat(' - Set: ', num2str(set))});
     end
-    ax2 = subplot(2, 1, 2);
+    subplot(2, 1, 2);
     hold on
     plot(nanmean(userData.tracked{set,1}(1).AvgTime,2),...
-        res.*nanmean(userData.tracked{set,1}(1).AvgPath,2));
+        (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2);
     ylabel('Distance Travelled (m)');
     xlabel('Time (ms)');
     title('Mean Squared Particle Displacement');
-    linkaxes([ax1, ax2], 'xy');
-    %userData.figure{end+1} = ax1.Parent;
 end
+userData.figure{end+1} = figure(1);
+hold on;
+for set = 1 : length(userData.tracked)
+    plot(nanmean(userData.tracked{set,1}(1).AvgTime,2),...
+        (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2);
+    % Legend ...!? %
+end
+
