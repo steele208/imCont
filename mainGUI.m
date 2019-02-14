@@ -58,6 +58,9 @@ handles.output = hObject;
 %start paralell pool for asynchronus working
 %handles.pool = gcp; 
 
+handles.wbOA = waitbar2a(0, handles.uipanel12,'BarColor','green');
+handles.wbCur = waitbar2a(0, handles.uipanel13,'BarColor','blue');
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -181,9 +184,10 @@ function contButton_Callback(hObject, eventdata, handles)
 % hObject    handle to contButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+waitbar2a(0, handles.wbCur, '');
+waitbar2a(0, handles.wbOA);
+    
 
-handles.wbOA = waitbar2a(0, handles.uipanel12,'BarColor','green');
-handles.wbCur = waitbar2a(0, handles.uipanel13,'BarColor','blue');
 switch handles.loadFiles.Value
     case 1
         if loadFiles(handles)
@@ -221,7 +225,6 @@ if strcmp(handles.output.UserData.imageType,'new')
 end
 %pause(0.1);
 handles = path_detection(handles);
-
 handles.output.UserData = graph_results(handles.output.UserData);
 saveOutputs(handles.output.UserData); % Enter saving routines
 
@@ -245,10 +248,9 @@ function saveFlag = saveState(handles)
 
     function flag = loadFiles(handles)
     msg = {'1) Select image files'; '2) Select metadata in chosen format'};
-    usageMsg = makeDialog(msg);
+    handles.text20.String = msg;
     % load .tiff files, will require metadata to be added
     handles.output.UserData.imData = imageLoad(handles);
-    delete(usageMsg);
     handles.output.UserData.imageType = 'new';
     if ~isstruct(handles.output.UserData.imData)
         flag = 1;
@@ -259,16 +261,14 @@ function saveFlag = saveState(handles)
         function flag = loadStruct(handles)
     msgOld = {'Select image files'; '   (These should include metadata)'};
     loadMsg = 'Loading - Please wait some seconds...';
-    usageMsg = makeDialog(msgOld);
+    handles.text20.String = msgOld;
     % Load pre-run .mat - should include metadata
     [imFile, imPath] = uigetfile('.mat');
-    delete(usageMsg);
     if any(imFile == 0) || any(imPath == 0)
         flag = 1;
         return
     end
-    loadMsg = makeDialog(loadMsg);
-    pause(0.0001);
+    handles.text20.String = loadMsg;
     handles.output.UserData = load(strcat(imPath, imFile));
     %{
     if isstruct(handles.output.UserData.imData)
@@ -276,7 +276,6 @@ function saveFlag = saveState(handles)
         handles.output.UserData.imData = handles.output.UserData.imData.(f{1});
     end
     %}
-    delete(loadMsg);
     if length(fields(handles.output.UserData)) == 1
         f = fields(handles.output.UserData);
         handles.output.UserData = handles.output.UserData.(f{1});
@@ -288,12 +287,13 @@ function saveFlag = saveState(handles)
     end
     flag = 0;
 
+    %{
 function d = makeDialog(msg)
 d = dialog('Position', [0 500 250 50], 'Name', 'Loading');
 uicontrol('Parent', d, 'Style', 'text',...
     'Position',[0 -5 245 45],...
     'String', msg);
-
+%}
 % --- Executes when user attempts to close figure1.
 function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)

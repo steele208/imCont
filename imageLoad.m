@@ -1,9 +1,6 @@
 function imOut = imageLoad(handles)
     options = handles.optionMenu.Value;
-    warning('off', 'Images:initSize:adjustingMag');
-    % get n files (GUI)
-    
-    %figure('Visible','on'); 
+    % get n files (GUI) 
     % Catch the UI being cancelled
     [fname, imgSrc] = uigetfile({'*.tiff'}, 'Select images to load',...
         'MultiSelect', 'on');
