@@ -187,48 +187,47 @@ function contButton_Callback(hObject, eventdata, handles)
 waitbar2a(0, handles.wbCur, '');
 waitbar2a(0, handles.wbOA);
     
-
 switch handles.loadFiles.Value
-    case 1
-        if loadFiles(handles)
+    case 1 % New Data
+        % Determine location of images and xml
+        handles = findFiles(handles);
+        handles = findXML(handles);
+        % error catching
+        if handles.output.UserData.findFFlag
+            return;
+        elseif handles.output.UserData.findXFlag
             return;
         end
-    case 0
+        %load images
+        handles.output.UserData.imData = imageLoad(handles);
+        %load metadata
+        msg = {'Loading MetaData','May take some minutes!'};
+        handles.text20.String =msg;
+        handles.output.UserData.metaData = ...
+            readXML(handles.output.UserData.xmlLocation);
+        handles.output.UserData = tracking(handles);
+        handles = path_detection(handles);
+    case 0 % Load Data
+        msg = {'Loading Pre-processed Data','May take some minutes!'};
+        handles.text20.String = msg;
         if loadStruct(handles)
             return;
         end
 end
-if strcmp(handles.output.UserData.imageType, 'new')
-    msg = {'Loading MetaData','May take some minutes!'};
-    usageMsg = makeDialog(msg);
-    
-    switch handles.loadXML.Value
-        case 1
-            % Load .xml
-            [xmlFile, xmlPath] = uigetfile('.xml');
-            xmlLocation = strcat(xmlPath, xmlFile);
-            handles.output.UserData.xmlLocation = xmlLocation;
-            handles.output.UserData.metaData = readXML(xmlLocation);
-        case 0
-            % Assume that metadata is already incorporated in .mat
-            fprintf("Meta included");
-            pause(1);
-    end
-else
-    msg = {'Loading Pre-processed Data','May take some minutes!'};
-    usageMsg = makeDialog(msg);
-end
+
 handles.output.UserData.save = saveState(handles); 
-delete(usageMsg);
-if strcmp(handles.output.UserData.imageType,'new')
-    handles.output.UserData = tracking(handles);
-end
-%pause(0.1);
-handles = path_detection(handles);
 handles.output.UserData = graph_results(handles.output.UserData);
 saveOutputs(handles.output.UserData); % Enter saving routines
 
-
+function handles = findXML(handles)
+    [xmlFile, xmlPath] = uigetfile('.xml');
+    xmlLocation = strcat(xmlPath, xmlFile);
+    if any(xmlLocation == 0)
+        handles.output.UserData.findXFlag = 1;
+        return
+    end
+    handles.output.UserData.xmlLocation = xmlLocation;
+    handles.output.UserData.findXFlag = 0;
 
 function saveFlag = saveState(handles)
 % Determine a save state for a later function. 
@@ -246,21 +245,32 @@ function saveFlag = saveState(handles)
         saveFlag = 0;
     end
 
-    function flag = loadFiles(handles)
+function handles = findFiles(handles)
     msg = {'1) Select image files'; '2) Select metadata in chosen format'};
     handles.text20.String = msg;
     % load .tiff files, will require metadata to be added
-    handles.output.UserData.imData = imageLoad(handles);
-    handles.output.UserData.imageType = 'new';
-    if ~isstruct(handles.output.UserData.imData)
-        flag = 1;
-    else
-        flag = 0;
+    % Do actual image load after determining meta location
+    [filename, filepath] = uigetfile({'*.tiff'},'Select images to load',...
+    'MultiSelect', 'on');
+    if ~iscell(filename) || ~ischar(filepath)
+        handles.output.UserData.findFFlag = 1;
+        return;
     end
+    handles.output.UserData.filename = filename;
+    handles.output.UserData.filepath = filepath;
+    handles.output.UserData.findFFlag = 0;
+    %{
+        handles.output.UserData.imData = imageLoad(handles);
+        if ~isstruct(handles.output.UserData.imData)
+            handles.output.UserData.findFFlag = 1;
+        else
+            handles.output.UserData.findFFlag = 0;
+        end
+    %}
         
         function flag = loadStruct(handles)
-    msgOld = {'Select image files'; '   (These should include metadata)'};
-    loadMsg = 'Loading - Please wait some seconds...';
+    msgOld = 'Select Analysed Data (.mat)';
+    loadMsg = {'Loading - Please wait','May take some seconds...'};
     handles.text20.String = msgOld;
     % Load pre-run .mat - should include metadata
     [imFile, imPath] = uigetfile('.mat');
@@ -270,21 +280,18 @@ function saveFlag = saveState(handles)
     end
     handles.text20.String = loadMsg;
     handles.output.UserData = load(strcat(imPath, imFile));
-    %{
-    if isstruct(handles.output.UserData.imData)
-        f = fields(handles.output.UserData.imData);
-        handles.output.UserData.imData = handles.output.UserData.imData.(f{1});
-    end
-    %}
+
     if length(fields(handles.output.UserData)) == 1
         f = fields(handles.output.UserData);
         handles.output.UserData = handles.output.UserData.(f{1});
     end
+    %{
     if isfield(handles.output.UserData, 'metaData') && ~handles.loadXML.Value
         handles.output.UserData.imageType = 'old';
     else
         handles.output.UserData.imageType = 'new';
     end
+    %}
     flag = 0;
 
     %{
@@ -294,6 +301,7 @@ uicontrol('Parent', d, 'Style', 'text',...
     'Position',[0 -5 245 45],...
     'String', msg);
 %}
+    
 % --- Executes when user attempts to close figure1.
 function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
@@ -302,10 +310,6 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 
 % Hint: delete(hObject) closes the figure
 delete(handles.figure1);
-
-
-
-
 
 % --- Executes on button press in loadFiles.
 function loadFiles_Callback(hObject, eventdata, handles)
@@ -386,7 +390,6 @@ function saveIm_Callback(hObject, eventdata, handles)
 set(handles.saveNo, 'Value', 0);
 set(handles.saveIm, 'Value', hObject.Value);
 
-
 % --- Executes on button press in saveNo.
 function saveNo_Callback(hObject, eventdata, handles)
 % hObject    handle to saveNo (see GCBO)
@@ -418,7 +421,6 @@ set(handles.videoNo, 'Value', 0);
 set(handles.videoAll, 'Value', 0);
 set(handles.videoSelect, 'Value', 1);
 
-
 % --- Executes on selection change in optionMenu.
 function optionMenu_Callback(hObject, eventdata, handles)
 % hObject    handle to optionMenu (see GCBO)
@@ -428,14 +430,15 @@ function optionMenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns optionMenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from optionMenu
 switch(get(handles.optionMenu, 'Value'))
-    case 1
-        set(handles.uipanel10, 'Visible', 'off');
+    case 1 %Standard
+        set(handles.radiobutton12, 'Enable', 'off');
+        set(handles.radiobutton13, 'Enable', 'off');
         
-    case 2
-        set(handles.uipanel10, 'Visible', 'on');
+    case 2 %Advanced
+        set(handles.radiobutton12, 'Enable', 'on');
+        set(handles.radiobutton13, 'Enable', 'on');
         
 end
-
 
 % --- Executes during object creation, after setting all properties.
 function optionMenu_CreateFcn(hObject, eventdata, handles)
@@ -449,7 +452,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
 % --- Executes on button press in radiobutton11.
 function radiobutton11_Callback(hObject, eventdata, handles)
 % hObject    handle to radiobutton11 (see GCBO)
@@ -458,8 +460,6 @@ function radiobutton11_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton11
 
-
-
 function edit1_Callback(hObject, eventdata, handles)
 % hObject    handle to edit1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -467,7 +467,6 @@ function edit1_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit1 as text
 %        str2double(get(hObject,'String')) returns contents of edit1 as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function edit1_CreateFcn(hObject, eventdata, handles)
