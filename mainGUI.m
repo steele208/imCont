@@ -191,18 +191,19 @@ switch handles.loadFiles.Value
     case 1 % New Data
         % Determine location of images and xml
         handles = findFiles(handles);
-        handles = findXML(handles);
         % error catching
         if handles.output.UserData.findFFlag
             return;
-        elseif handles.output.UserData.findXFlag
+        end
+        handles = findXML(handles);
+        if handles.output.UserData.findXFlag
             return;
         end
         %load images
         handles.output.UserData.imData = imageLoad(handles);
         %load metadata
         msg = {'Loading MetaData','May take some minutes!'};
-        handles.text20.String =msg;
+        handles.text20.String = msg;
         handles.output.UserData.metaData = ...
             readXML(handles.output.UserData.xmlLocation);
         handles.output.UserData = tracking(handles);
@@ -217,10 +218,11 @@ end
 
 handles.output.UserData.save = saveState(handles); 
 handles.output.UserData = graph_results(handles.output.UserData);
-saveOutputs(handles.output.UserData); % Enter saving routines
+saveOutputs(handles); % Enter saving routines
 
 function handles = findXML(handles)
-    [xmlFile, xmlPath] = uigetfile('.xml');
+    [xmlFile, xmlPath] = uigetfile('.xml',...
+        'path', handles.output.UserData.filepath);
     xmlLocation = strcat(xmlPath, xmlFile);
     if any(xmlLocation == 0)
         handles.output.UserData.findXFlag = 1;
@@ -252,21 +254,13 @@ function handles = findFiles(handles)
     % Do actual image load after determining meta location
     [filename, filepath] = uigetfile({'*.tiff'},'Select images to load',...
     'MultiSelect', 'on');
-    if ~iscell(filename) || ~ischar(filepath)
+    if ~iscell(filename) || ~ischar(filepath) || ~any(filepath)
         handles.output.UserData.findFFlag = 1;
         return;
     end
     handles.output.UserData.filename = filename;
     handles.output.UserData.filepath = filepath;
     handles.output.UserData.findFFlag = 0;
-    %{
-        handles.output.UserData.imData = imageLoad(handles);
-        if ~isstruct(handles.output.UserData.imData)
-            handles.output.UserData.findFFlag = 1;
-        else
-            handles.output.UserData.findFFlag = 0;
-        end
-    %}
         
         function flag = loadStruct(handles)
     msgOld = 'Select Analysed Data (.mat)';
@@ -285,22 +279,8 @@ function handles = findFiles(handles)
         f = fields(handles.output.UserData);
         handles.output.UserData = handles.output.UserData.(f{1});
     end
-    %{
-    if isfield(handles.output.UserData, 'metaData') && ~handles.loadXML.Value
-        handles.output.UserData.imageType = 'old';
-    else
-        handles.output.UserData.imageType = 'new';
-    end
-    %}
     flag = 0;
 
-    %{
-function d = makeDialog(msg)
-d = dialog('Position', [0 500 250 50], 'Name', 'Loading');
-uicontrol('Parent', d, 'Style', 'text',...
-    'Position',[0 -5 245 45],...
-    'String', msg);
-%}
     
 % --- Executes when user attempts to close figure1.
 function figure1_CloseRequestFcn(hObject, eventdata, handles)
