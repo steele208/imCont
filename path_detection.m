@@ -1,12 +1,16 @@
 function handles = path_detection(handles)
 userData = handles.output.UserData;
+wbRatio = length(userData.tracked)+1;
 for set = 1 : length(userData.tracked)
     skipped = [];
     for prtcl = 1 : numel(userData.tracked{set,1})
+        %
         waitbar2a((set/3)*prtcl/numel(userData.tracked{set,1}),...
             handles.wbCur, 'Path Detection');
-        waitbar2a(0.8 + ((set/3)*prtcl/numel(userData.tracked{set,1}))/0.5,...
-            handles.wbOA); % 80%
+        
+        waitbar2a(0.8+(set+prtcl/numel(userData.tracked{set,1}))/...
+            wbRatio * 0.2...
+            ,handles.wbOA); 
         
         % Per particle
         userData.tracked{set,1}(prtcl).AbsTime(1) = 0;
