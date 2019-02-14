@@ -25,10 +25,10 @@ function [images] = assignMeta(handles)
             elseif contains(t0, '.')
                 tZone = find(t0 == '+');
                 mSec = find(t0 == '.');
-                if tZone - mSec < 4
-                    t0 = t0(1:mSec+(tZone - mSec));
-                    t0(end:23) = '0';
-                end
+                t0 = t0(1:mSec+(tZone - mSec));
+                t0(end:23) = '0';
+                t0 = datetime(t0, 'InputFormat',...
+                    'yyyy-MM-dd''T''HH:mm:ss.SSS');
             % has no millisec
             else
                 t0(end-5:end-2) = '.000';
