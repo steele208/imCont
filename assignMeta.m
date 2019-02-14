@@ -17,7 +17,24 @@ function [images] = assignMeta(handles)
             setNum = images(imIdx).Set;
             setIdx = imIdx;
             t0 = images(setIdx).Meta.AbsTime;
-            t0 = datetime(t0(1:end-6), 'InputFormat', 'yyyy-MM-dd''T''HH:mm:ss.SSS');
+            % has 3 digits of millisec
+            if strcmp(t0(end-9), '.')
+                t0 = datetime(t0(1:end-6), 'InputFormat',...
+                    'yyyy-MM-dd''T''HH:mm:ss.SSS');
+            % has less than 3 digits of millisec
+            elseif contains(t0, '.')
+                tZone = find(t0 == '+');
+                mSec = find(t0 == '.');
+                if tZone - mSec < 4
+                    t0 = t0(1:mSec+(tZone - mSec));
+                    t0(end:23) = '0';
+                end
+            % has no millisec
+            else
+                t0(end-5:end-2) = '.000';
+                t0 = datetime(t0(1:end-2), 'InputFormat',...
+                    'yyyy-MM-dd''T''HH:mm:ss.SSS');
+            end
             t0.Format = 'hh:mm:ss.SSS';
         end
 
