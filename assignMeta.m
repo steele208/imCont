@@ -1,4 +1,5 @@
-function [images] = assignMeta(userData)
+function [images] = assignMeta(handles)
+    userData = handles.output.UserData;
     % userData from previous loading routines should already contain meta
     % data and image data:
     images = userData.imData;
@@ -6,10 +7,8 @@ function [images] = assignMeta(userData)
     strSize = length(images(1).Name);
     
     for imIdx = 1 : length(images)
-        clc;
-        fprintf("Loading Images \t\t[100%%]\n");
-        fprintf("Adjusting Constrast \t[100%%]\n");
-        fprintf("Evaluating Metadata \t[%d%%]\n", round(imIdx / length(images) * 100));
+        waitbar2a(0.2 + imIdx / length(images)/10, handles.wbOA);
+        waitbar2a(imIdx / length(images), handles.wbCur,'Evaluate Metadata');
         
         metaIdx = ceil(strfind([meta.Name], images(imIdx).Name) / strSize);
         images(imIdx).Meta = meta(metaIdx).Data;

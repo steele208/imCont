@@ -1,11 +1,8 @@
-function images = masking(images, minSize)
+function images = masking(handles, images, minSize)
 
 for i = 1 : length(images)
-    clc;
-    fprintf("Loading Images \t\t[100%%]\n");
-    fprintf("Adjusting Constrast \t[100%%]\n");
-    fprintf("Evaluating Metadata \t[100%%]\n");
-    fprintf("Mask Images \t\t[%d%%]", round(i/length(images) * 100));
+    waitbar2a(i/length(images), handles.wbCur, 'Mask Images');
+    waitbar2a(0.3 + i/length(images)/5, handles.wbOA);
     
     % bw threshold mask
     images(i).Mask = imbinarize(images(i).Image, 0.25); 

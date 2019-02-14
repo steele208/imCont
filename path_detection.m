@@ -1,7 +1,13 @@
-function userData = path_detection(userData)
+function handles = path_detection(handles)
+userData = handles.output.UserData;
 for set = 1 : length(userData.tracked)
     skipped = [];
     for prtcl = 1 : numel(userData.tracked{set,1})
+        waitbar2a((set/3)*prtcl/numel(userData.tracked{set,1}),...
+            handles.wbCur, 'Path Detection');
+        waitbar2a(0.8 + ((set/3)*prtcl/numel(userData.tracked{set,1}))/0.5,...
+            handles.wbOA); % 80%
+        
         % Per particle
         userData.tracked{set,1}(prtcl).AbsTime(1) = 0;
         userData.tracked{set,1}(prtcl).Displacement(1) = 0;
@@ -73,3 +79,4 @@ for set = 1 : length(userData.tracked)
     userData.tracked{set,1}(1).AvgPath(:,1) = [];
     userData.tracked{set,1}(1).AvgTime(:,1) = [];
 end
+handles.output.UserData = userData;

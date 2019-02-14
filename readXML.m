@@ -1,6 +1,5 @@
 function output = readXML(xmlLocation)
 %[xf, xD] = uigetfile('.xml'); % Find file
-tic; % timing 
 tree = xmlread(xmlLocation); % Read file
 childNode = tree.getChildNodes; % First set of children
 output = struct('Name', [], 'Data', []); % Initialise output structure
@@ -25,5 +24,4 @@ for idx = 1 : 2 : imNode.getLength - 1
         node = infoNode.item(n); % next item
     end
 end
-toc;
 end

@@ -1,16 +1,12 @@
-function imInfo = removeVolatile(imInfo)
+function imInfo = removeVolatile(handles, imInfo)
 %{
 % Cross Reference and Remove Volitile Particles
 %     Does the corner reference (+/- 1) appear in the next image? 
 %     1 : length - 1
 %}
 for imIdx = 1 : length(imInfo)
-    clc;
-    fprintf("Loading Images \t\t[100%%]\n");
-    fprintf("Adjusting Constrast \t[100%%]\n");
-    fprintf("Evaluating Metadata \t[100%%]\n");
-    fprintf("Mask Images \t\t[100%%]\n");
-    fprintf("Detect Particles \t[%d%%]", round(imIdx/length(imInfo)*100));
+    waitbar2a(imIdx/length(imInfo), handles.wbCur, 'Detect Particles');
+    waitbar2a(0.5 + imIdx/length(imInfo)/5, handles.wbOA); % 70%
     
     xyThr = 1; % Accepted number of pixels moved between frames;
     

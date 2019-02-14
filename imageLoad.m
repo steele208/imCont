@@ -1,4 +1,5 @@
-function imOut = imageLoad(options)
+function imOut = imageLoad(handles)
+    options = handles.optionMenu.Value;
     warning('off', 'Images:initSize:adjustingMag');
     % get n files (GUI)
     
@@ -11,7 +12,7 @@ function imOut = imageLoad(options)
         return;
     end
     
-    fprintf("Loading Images\n");
+    
     % Setup strorage srtuctures for filenames and images
     N = numel(fname);
     im = struct('Name', fname', 'ID', cell(N,1), 'Set', cell(N,1), ...
@@ -19,8 +20,12 @@ function imOut = imageLoad(options)
     curSet = 1;
     for i = 1 : N
         clc;
-        fprintf("Loading Images \t\t[%d%%]\n", round(i/numel(fname)*100));
         
+        %fprintf("Loading Images \t\t[%d%%]\n", round(i/numel(fname)*100));
+
+        waitbar2a(i/numel(fname), handles.wbCur, 'Loading Images');
+        waitbar2a(i/numel(fname)/10, handles.wbOA);
+
         % determine file linkings from name 
         ID = regexp(im(i).Name, 'r\d+c\d+f\d+', 'match');
         im(i).ID = ID{1};

@@ -61,6 +61,7 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
+
 % UIWAIT makes mainGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
@@ -180,6 +181,9 @@ function contButton_Callback(hObject, eventdata, handles)
 % hObject    handle to contButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+handles.wbOA = waitbar2a(0, handles.uipanel12,'BarColor','green');
+handles.wbCur = waitbar2a(0, handles.uipanel13,'BarColor','blue');
 switch handles.loadFiles.Value
     case 1
         if loadFiles(handles)
@@ -213,10 +217,11 @@ end
 handles.output.UserData.save = saveState(handles); 
 delete(usageMsg);
 if strcmp(handles.output.UserData.imageType,'new')
-    handles.output.UserData = tracking(handles.output.UserData);
+    handles.output.UserData = tracking(handles);
 end
 %pause(0.1);
-handles.output.UserData = path_detection(handles.output.UserData);
+handles = path_detection(handles);
+
 handles.output.UserData = graph_results(handles.output.UserData);
 saveOutputs(handles.output.UserData); % Enter saving routines
 
@@ -242,7 +247,7 @@ function saveFlag = saveState(handles)
     msg = {'1) Select image files'; '2) Select metadata in chosen format'};
     usageMsg = makeDialog(msg);
     % load .tiff files, will require metadata to be added
-    handles.output.UserData.imData = imageLoad(handles.optionMenu.Value);
+    handles.output.UserData.imData = imageLoad(handles);
     delete(usageMsg);
     handles.output.UserData.imageType = 'new';
     if ~isstruct(handles.output.UserData.imData)

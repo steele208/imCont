@@ -1,4 +1,5 @@
-function userData = tracking(userData)
+function userData = tracking(handles)
+userData = handles.output.UserData;
 %% Find All Particles
 
 if ~isfield(userData, 'minSize')
@@ -14,14 +15,14 @@ else
 end
 
 if isempty(userData.imData(1).Meta)
-    userData.imData = assignMeta(userData);
+    userData.imData = assignMeta(handles);
 end
 
 
 imageInfo = userData.imData;
 if isempty(imageInfo(1).Mask)
-    imageInfo = masking(imageInfo, minSize);
-    imageInfo = removeVolatile(imageInfo);
+    imageInfo = masking(handles, imageInfo, minSize);
+    imageInfo = removeVolatile(handles, imageInfo);
 elseif ~isfield(imageInfo, 'trkInfo')
     imageInfo = removeVolatile(imageInfo);
 end
@@ -29,12 +30,8 @@ end
 X = 1; % Enum for readability
 Y = 2; % Enum for readability
 for im = 1 : length(imageInfo)
-    clc;
-    fprintf("Loading Images \t\t[100%%]\n");
-    fprintf("Adjusting Constrast \t[100%%]\n");
-    fprintf("Evaluating Metadata \t[100%%]\n");
-    fprintf("Detect Particles \t[100%%]\n");
-    fprintf("Track Particles \t[%d%%]\n", round(im/length(imageInfo)*100));
+    waitbar2a(im/length(imageInfo), handles.wbCur, 'Track Particles');
+    waitbar2a(0.7 + im/length(imageInfo)/10, handles.wbOA); % 70%    
     
     % Seperate by image sets, avoid trying to track between inconsistent
     % image sets
