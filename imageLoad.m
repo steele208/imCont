@@ -1,25 +1,17 @@
 function imOut = imageLoad(handles)
-    options = handles.optionMenu.Value;
+    options = handles.radiobutton13.Value;
     % get n files (GUI) 
     % Catch the UI being cancelled
-    [fname, imgSrc] = uigetfile({'*.tiff'}, 'Select images to load',...
-        'MultiSelect', 'on');
-    if ~ischar(fname) && ~iscell(fname)
-        imOut = 0;
-        return;
-    end
-    
-    
+    %%
+    fname = handles.output.UserData.filename;
+    fpath = handles.output.UserData.filepath;
+    %%
     % Setup strorage srtuctures for filenames and images
     N = numel(fname);
     im = struct('Name', fname', 'ID', cell(N,1), 'Set', cell(N,1), ...
         'Image', cell(N,1), 'Mask', cell(N,1), 'Meta', cell(N,1));
     curSet = 1;
-    for i = 1 : N
-        clc;
-        
-        %fprintf("Loading Images \t\t[%d%%]\n", round(i/numel(fname)*100));
-
+    for i = 1 : numel(fname)       
         waitbar2a(i/numel(fname), handles.wbCur, 'Loading Images');
         waitbar2a(i/numel(fname)/10, handles.wbOA);
 
@@ -35,7 +27,7 @@ function imOut = imageLoad(handles)
         
         % Determine contrast using first image of a set
         if i == 1 || (i > 1 && ~strcmp(im(i).ID, im(i-1).ID))
-			im(i).Image = imread(strcat(imgSrc, im(i).Name));
+			im(i).Image = imread(strcat(fpath, im(i).Name));
 			im(i).Image = uint8(im(i).Image ./ 256);
 			% GUI for setting contrast levels
             output = new_cTool(im(i).Image, options); 
@@ -49,7 +41,7 @@ function imOut = imageLoad(handles)
 			end
 		elseif UserData.Continue
 			% Load and adjust set of images.
-			im(i).Image = imread(strcat(imgSrc, im(i).Name));
+			im(i).Image = imread(strcat(fpath, im(i).Name));
 			im(i).Image = uint8(im(i).Image ./ 256);
 			im(i).Image = imadjust(im(i).Image, ...
                 [UserData.Floor UserData.Roof]); 
