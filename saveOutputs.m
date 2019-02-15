@@ -2,6 +2,7 @@ function saveOutputs(handles)
     userData = handles.output.UserData;
     curFolder = pwd;
     msgStem = 'Select Location to Save ';
+    msg{2} = 'May Take Some Minutes';
     msg{3} = 'Successfully Saved to:';
     %Enums
     DATA = 1;
@@ -20,7 +21,7 @@ function saveOutputs(handles)
         if userData.save == 3 || userData.save == 1
             cd(curFolder);
             msg{1} = strcat(msgStem, ' Data');
-            handles.text20.String = msg{1};
+            handles.text20.String = msg{1:2};
             [file, path] = uiputfile('*.mat', 'Save Data to File');
             saveErr = makeSave(DATA, userData, path, file); % Error, might be ignored 
         end

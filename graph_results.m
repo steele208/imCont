@@ -26,7 +26,19 @@ for set = 1 : length(userData.tracked)
     end
     subplot(2, 1, 2);
     hold on
-    plot(nanmean(userData.tracked{set,1}(1).AvgTime,2),...
+    for i = 1 : length(userData.tracked{set,1})
+        if all(size(userData.tracked{set,1}(1).AvgTime(:,i)) ==...
+                size(nanmean(userData.tracked{set,1}(1).AvgPath,2)))
+            t = i;
+            continue
+        end
+    end
+    %t = userData.tracked{set,1}(2).AvgTime;
+    
+    if set == 5 || set == 8
+        continue
+    end    
+    plot(userData.tracked{set,1}(1).AvgTime(:,t),...
         (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2);
     ylabel('Distance Travelled (m)');
     xlabel('Time (ms)');
@@ -35,6 +47,9 @@ end
 userData.figure{end+1} = figure(1);
 hold on;
 for set = 1 : length(userData.tracked)
+    if set == 5 || set == 8
+        continue
+    end
     plot(nanmean(userData.tracked{set,1}(1).AvgTime,2),...
         (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2);
     % Legend ...!? %
