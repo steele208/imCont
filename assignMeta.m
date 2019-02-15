@@ -20,7 +20,8 @@ function [images] = assignMeta(handles)
             images(imIdx).Meta.RelTime = 0;
         else
             imTime = t;
-            relTime = 60*(minute(imTime) - minute(t0)) +...
+            relTime = 3600*(hour(imTime) - hour(t0)) +...
+                60*(minute(imTime) - minute(t0)) +...
                 (second(imTime) - second(t0));
             images(imIdx).Meta.RelTime = relTime;
         end
