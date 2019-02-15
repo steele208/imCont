@@ -1,5 +1,5 @@
-function [images] = assignMeta(handles)
-    userData = handles.output.UserData;
+function images = assignMeta(userData) %%%
+    %%% userData = handles.output.UserData;
     % userData from previous loading routines should already contain meta
     % data and image data:
     images = userData.imData;
@@ -7,8 +7,8 @@ function [images] = assignMeta(handles)
     strSize = length(images(1).Name);
     
     for imIdx = 1 : length(images)
-        waitbar2a(0.2 + imIdx / length(images)/10, handles.wbOA);
-        waitbar2a(imIdx / length(images), handles.wbCur,'Evaluate Metadata');
+        %%%waitbar2a(0.2 + imIdx / length(images)/10, handles.wbOA);
+        %%%waitbar2a(imIdx / length(images), handles.wbCur,'Evaluate Metadata');
         
         metaIdx = ceil(strfind([meta.Name], images(imIdx).Name) / strSize);
         images(imIdx).Meta = meta(metaIdx).Data;
