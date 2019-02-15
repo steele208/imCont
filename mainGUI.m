@@ -213,23 +213,22 @@ switch handles.loadFiles.Value
             case 0 % Load Data as is
                 msg = {'Loading Pre-processed Data','May take some minutes!'};
                 handles.text20.String = msg;
-                tic
-                handles = loadStruct(handles);
+                handles = findStruct(handles);
                 if handles.output.UserData.loadSFlag
                     return;
                 end
-                toc
+                handles = loadStruct(handles);
             case 1 % change associated meta
-                tic
-                handles = loadStruct(handles);
+                handles = findStruct(handles);
                 if handles.output.UserData.loadSFlag
                     return;
                 end
-                toc
                 handles = findXML(handles);
                 if handles.output.UserData.findXFlag
                     return;
                 end
+                % load data
+                handles = loadStruct(handles);
                 %load metadata
                 msg = {'Loading MetaData','May take some minutes!'};
                 handles.text20.String = msg;
@@ -245,9 +244,14 @@ handles.output.UserData.save = saveState(handles);
 saveOutputs(handles); % Enter saving routines
 
 function handles = findXML(handles)
+    msgOld = 'Select Meta Data (.xml)';
+    handles.text20.String = msgOld;
     if isfield(handles.output.UserData, 'xmlLocation')
         [xmlFile, xmlPath] = uigetfile('.xml',...
             'path', handles.output.UserData.xmlLocation);
+    elseif isfield(handles.output.UserData, 'filepath')
+        [xmlFile, xmlPath] = uigetfile('.xml',...
+            'path', handles.output.UserData.filepath);
     else
         [xmlFile, xmlPath] = uigetfile('.xml');
     end
@@ -289,10 +293,9 @@ function handles = findFiles(handles)
     handles.output.UserData.filename = filename;
     handles.output.UserData.filepath = filepath;
     handles.output.UserData.findFFlag = 0;
-        
-function handles = loadStruct(handles)
+ 
+function handles = findStruct(handles)
     msgOld = 'Select Analysed Data (.mat)';
-    loadMsg = {'Loading - Please wait','May take some seconds...'};
     handles.text20.String = msgOld;
     % Load pre-run .mat - should include metadata
     [imFile, imPath] = uigetfile('.mat');
@@ -300,14 +303,21 @@ function handles = loadStruct(handles)
         handles.output.UserData.loadSFlag = 1;
         return
     end
+    handles.output.UserData.filename = imFile;
+    handles.output.UserData.filepath = imPath;
+    handles.output.UserData.loadSFlag = 0;
+    
+function handles = loadStruct(handles)
+    loadMsg = {'- Please wait -','Loading Data May Take Some Minutes...'};
     handles.text20.String = loadMsg;
+    imPath = handles.output.UserData.filepath;
+    imFile = handles.output.UserData.filename;
     handles.output.UserData = load(strcat(imPath, imFile));
 
     if length(fields(handles.output.UserData)) == 1
         f = fields(handles.output.UserData);
         handles.output.UserData = handles.output.UserData.(f{1});
     end
-    handles.output.UserData.loadSFlag = 0;
 
     
 % --- Executes when user attempts to close figure1.

@@ -72,7 +72,7 @@ for set = 1 : length(userData.tracked)
                 length(userData.tracked{set,1}(1).AvgTime)
             len = size(userData.tracked{set,1}(1).AvgTime,1);
             pad = length(userData.tracked{set,1}(prtcl).Time);
-            userData.tracked{set,1}(1).AvgTime(len:pad,1) = NaN;
+            userData.tracked{set,1}(1).AvgTime(len+1:pad,1:prtcl) = NaN;
         end
         userData.tracked{set,1}(1).AvgTime(:,end+1) = ...
             userData.tracked{set,1}(prtcl).Time;
