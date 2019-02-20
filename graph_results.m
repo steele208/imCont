@@ -28,16 +28,14 @@ for set = 1 : length(userData.tracked)
     hold on
     for i = 1 : length(userData.tracked{set,1})
         if all(size(userData.tracked{set,1}(1).AvgTime(:,i)) ==...
-                size(nanmean(userData.tracked{set,1}(1).AvgPath,2)))
+                size(nanmean(userData.tracked{set,1}(1).AvgPath,2))) &&...
+                ~any(isnan(userData.tracked{set,1}(1).AvgTime(:,i)))
             t = i;
+            
             continue
         end
     end
-    %t = userData.tracked{set,1}(2).AvgTime;
-    
-    if set == 5 || set == 8
-        continue
-    end    
+ 
     plot(userData.tracked{set,1}(1).AvgTime(:,t),...
         (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2);
     ylabel('Distance Travelled (m)');
@@ -47,11 +45,16 @@ end
 userData.figure{end+1} = figure(1);
 hold on;
 for set = 1 : length(userData.tracked)
-    if set == 5 || set == 8
-        continue
+    if set == 15 || set == 17
+        continue;
     end
     plot(nanmean(userData.tracked{set,1}(1).AvgTime,2),...
         (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2);
+    title({'Mean Squared Particle Displacement','Gel Concentrations  1% to 8%'},...
+    'FontSize', 14);
+    ylabel('Distance Travelled (m)');
+    xlabel('Time (ms)');
+    axis([0 180 0 inf])
     % Legend ...!? %
 end
 
