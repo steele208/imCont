@@ -238,7 +238,8 @@ switch handles.loadFiles.Value
                 handles = path_detection(handles);
         end
 end
-
+% MATHS on MSD
+handles = rheologyCalcs(handles);
 handles.output.UserData = graph_results(handles.output.UserData);
 handles.output.UserData.save = saveState(handles); 
 saveOutputs(handles); % Enter saving routines
