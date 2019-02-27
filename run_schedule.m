@@ -8,7 +8,7 @@ function run_schedule(handles)
 
 % MATHS on MSD
 handles = rheologyCalcs(handles);
-handles.output.UserData = graph_results(handles.output.UserData);
+handles.output.UserData = graph_results(handles);
 handles.output.UserData.save = saveState(handles); 
 saveOutputs(handles); % Enter saving routines
 
@@ -24,13 +24,13 @@ function handles = isNew(handles)
             return;
         end
         %load images
-        handles.output.UserData.imData = imageLoad(handles);
+        handles = imageLoad(handles);
         %load metadata
         msg = {'Loading MetaData','May take some minutes!'};
         handles.text20.String = msg;
         handles.output.UserData.metaData = ...
             readXML(handles.output.UserData.xmlLocation);
-        handles.output.UserData = tracking(handles);
+        handles = tracking(handles);
         handles = path_detection(handles);
         
 function handles = isLoad(handles)

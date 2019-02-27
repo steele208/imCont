@@ -1,15 +1,16 @@
-function imInfo = removeVolatile(handles, imInfo)
+function handles = removeVolatile(handles)
 %{
 % Cross Reference and Remove Volitile Particles
 %     Does the corner reference (+/- 1) appear in the next image? 
 %     1 : length - 1
 %}
+imInfo = handles.output.UserData.imData;
 for imIdx = 1 : length(imInfo)
     msg = {'Cross reference particles between frames'};
     handles.text20.String = msg;
     waitbar2a(imIdx/length(imInfo), handles.wbCur, 'Detect Particles');
     waitbar2a(handles.barMax + imIdx/length(imInfo)/10, handles.wbOA);
-    handles.barMax = handles.barMax + 0.1;
+    
     
     xyThr = 1; % Accepted number of pixels moved between frames;
     
@@ -47,7 +48,7 @@ for imIdx = 1 : length(imInfo)
         end
     end
  end
-
+handles.barMax = handles.barMax + 0.1;
 %{
     % Does the corner reference (+/- 1) appear in the previous image?
     % 2 : length
@@ -86,4 +87,5 @@ maxTracked = 0;
         end
     %end
  end
+ handles.output.UserData.imData = imInfo;
     

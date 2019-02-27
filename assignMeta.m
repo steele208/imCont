@@ -1,4 +1,4 @@
-function images = assignMeta(handles) %%%
+function handles = assignMeta(handles) %%%
     %%% userData = handles.output.UserData;
     % userData from previous loading routines should already contain meta
     % data and image data:
@@ -12,7 +12,7 @@ function images = assignMeta(handles) %%%
         handles.text20.String = msg;
         waitbar2a(handles.barMax + imIdx / length(images)/10, handles.wbOA);
         waitbar2a(imIdx / length(images), handles.wbCur,'Evaluate Metadata');
-        handles.barMax = handles.barMax + 0.1;
+        
         
         nameIdx = strfind(metaStr, images(imIdx).Name);
         metaIdx = numel(strfind(metaStr(1:nameIdx), '.tiff')) + 1;
@@ -31,6 +31,8 @@ function images = assignMeta(handles) %%%
             images(imIdx).Meta.RelTime = relTime;
         end
     end
+    handles.output.UserData.imData = images;
+    handles.barMax = handles.barMax + 0.1;
     
 function t = dTime(setIdx, images)
         t = images(setIdx).Meta.AbsTime;

@@ -1,4 +1,4 @@
-function imOut = imageLoad(handles)
+function handles = imageLoad(handles)
     options = handles.radiobutton13.Value;
     % get n files (GUI) 
     % Catch the UI being cancelled
@@ -50,5 +50,5 @@ function imOut = imageLoad(handles)
                 [UserData.Floor UserData.Roof]); 
         end
     end
-    imOut = im;
+    handles.output.UserData.imData = im;
 end

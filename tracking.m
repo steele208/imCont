@@ -1,4 +1,4 @@
-function userData = tracking(handles)
+function handles = tracking(handles)
 userData = handles.output.UserData;
 %% Find All Particles
 
@@ -15,27 +15,28 @@ else
 end
 
 %if isempty(userData.imData(1).Meta)
-    userData.imData = assignMeta(handles);
+    handles = assignMeta(handles);
 %end
 
 
-imageInfo = userData.imData;
+imageInfo = handles.output.UserData.imData;
 if isempty(imageInfo(1).Mask)
-    imageInfo = masking(handles, imageInfo, minSize);
-    imageInfo = removeVolatile(handles, imageInfo);
+    handles = masking(handles, minSize);
+    handles = removeVolatile(handles);
 elseif ~isfield(imageInfo, 'trkInfo')
-    imageInfo = removeVolatile(imageInfo);
+    handles = removeVolatile(handles);
 end
 %% Evaluate Particle Displacements -> Expanding UID massively, consider rehaul.
 X = 1; % Enum for readability
 Y = 2; % Enum for readability
+imageInfo = handles.output.UserData.imData;
 for im = 1 : length(imageInfo)
     msg = {'Tracking particle movement over time',...
         'Correlating particles between frames'};
     handles.text20.String = msg;
     waitbar2a(im/length(imageInfo), handles.wbCur, 'Track Particles');
     waitbar2a(handles.barMax + im/length(imageInfo)/10, handles.wbOA);    
-    handles.barMax = handles.barMax + 0.1;
+    
     % Seperate by image sets, avoid trying to track between inconsistent
     % image sets
     if im == 1
@@ -98,5 +99,7 @@ for im = 1 : length(imageInfo)
     % Save 'particles' tracking data into userData struct for each image
     userData.tracked{imageInfo(im).Set,1} = particles;
 end
+handles.barMax = handles.barMax + 0.1;
 %% All outputs exported via userData struct
-userData.imData = imageInfo;
+handles.output.UserData.imData = imageInfo;
+handles.output.UserData.tracked = userData.tracked;

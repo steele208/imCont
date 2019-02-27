@@ -12,7 +12,7 @@ for set = 1 : length(userData.tracked)
         waitbar2a(handles.barMax +...
             ((set+prtcl/numel(userData.tracked{set,1}))/wbRatio)*0.2,...
             handles.wbOA); 
-        handles.barMax = handles.barMax + 0.2;
+        
         
         % Per particle
         userData.tracked{set,1}(prtcl).AbsTime(1) = 0;
@@ -85,7 +85,7 @@ for set = 1 : length(userData.tracked)
     userData.tracked{set,1}(1).AvgPath(:,1) = [];
     userData.tracked{set,1}(1).AvgTime(:,1) = [];
 end
-
+handles.barMax = handles.barMax + 0.2;
 res = str2double(userData.metaData(1).Data.ImageResolutionX);
 userData.tracked{set,1}(1).MSD = ...
         (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2;
