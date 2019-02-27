@@ -1,14 +1,12 @@
 function userData = graph_results(userData)
 %{
-% Needs:
-%   - Mean/nanmean per point
-%   - Mean per set subplot/single axis
+ Needs:
+   - Mean/nanmean per point
+   - Mean per set subplot/single axis
 %}
 
-
 % Assuming that all images are at the same resolution:
-res = userData.metaData(1).Data.ImageResolutionX;
-res = str2double(res);
+res = str2double(userData.metaData(1).Data.ImageResolutionX);
 userData.figure = [];
 for set = 1 : length(userData.tracked)
     userData.figure{end+1} = figure(set+1);
@@ -42,16 +40,14 @@ for set = 1 : length(userData.tracked)
     xlabel('Time (ms)');
     title('Mean Squared Particle Displacement');
 end
+
 userData.figure{end+1} = figure(1);
 hold on;
 for set = 1 : length(userData.tracked)
-    if set == 15 || set == 17
-        continue;
-    end
     plot(nanmean(userData.tracked{set,1}(1).AvgTime,2),...
-        (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2);
-    title({'Mean Squared Particle Displacement','Gel Concentrations  1% to 8%'},...
-    'FontSize', 14);
+        userData.tracked{set,1}(1).MSD);
+    title({'Mean Squared Particle Displacement',...
+        'Gel Concentrations  1% to 8%'}, 'FontSize', 14);
     ylabel('Distance Travelled (m)');
     xlabel('Time (ms)');
     axis([0 180 0 inf])

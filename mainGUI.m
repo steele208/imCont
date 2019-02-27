@@ -22,7 +22,7 @@ function varargout = mainGUI(varargin)
 
 % Edit the above text to modify the response to help mainGUI
 
-% Last Modified by GUIDE v2.5 21-Feb-2019 09:22:33
+% Last Modified by GUIDE v2.5 27-Feb-2019 10:12:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -61,6 +61,7 @@ handles.output = hObject;
 handles.wbOA = waitbar2a(0, handles.uipanel12,'BarColor','green');
 handles.wbCur = waitbar2a(0, handles.uipanel13,'BarColor','blue');
 handles.text22.String = [char(956), 'm'];
+handles.text24.String = [char(176), 'C'];
 % Update handles structure
 guidata(hObject, handles);
 
@@ -186,139 +187,7 @@ function contButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 waitbar2a(0, handles.wbCur, '');
 waitbar2a(0, handles.wbOA);
-    
-switch handles.loadFiles.Value
-    case 1 % New Data
-        % Determine location of images and xml
-        handles = findFiles(handles);
-        % error catching
-        if handles.output.UserData.findFFlag
-            return;
-        end
-        handles = findXML(handles);
-        if handles.output.UserData.findXFlag
-            return;
-        end
-        %load images
-        handles.output.UserData.imData = imageLoad(handles);
-        %load metadata
-        msg = {'Loading MetaData','May take some minutes!'};
-        handles.text20.String = msg;
-        handles.output.UserData.metaData = ...
-            readXML(handles.output.UserData.xmlLocation);
-        handles.output.UserData = tracking(handles);
-        handles = path_detection(handles);
-    case 0 % Load Data
-        switch handles.loadXML.Value
-            case 0 % Load Data as is
-                msg = {'Loading Pre-processed Data','May take some minutes!'};
-                handles.text20.String = msg;
-                handles = findStruct(handles);
-                if handles.output.UserData.loadSFlag
-                    return;
-                end
-                handles = loadStruct(handles);
-            case 1 % change associated meta
-                handles = findStruct(handles);
-                if handles.output.UserData.loadSFlag
-                    return;
-                end
-                handles = findXML(handles);
-                if handles.output.UserData.findXFlag
-                    return;
-                end
-                % load data
-                handles = loadStruct(handles);
-                %load metadata
-                msg = {'Loading MetaData','May take some minutes!'};
-                handles.text20.String = msg;
-                handles.output.UserData.metaData = ...
-                    readXML(handles.output.UserData.xmlLocation);
-                handles.output.UserData = tracking(handles);
-                handles = path_detection(handles);
-        end
-end
-% MATHS on MSD
-handles = rheologyCalcs(handles);
-handles.output.UserData = graph_results(handles.output.UserData);
-handles.output.UserData.save = saveState(handles); 
-saveOutputs(handles); % Enter saving routines
-
-function handles = findXML(handles)
-    msgOld = 'Select Meta Data (.xml)';
-    handles.text20.String = msgOld;
-    if isfield(handles.output.UserData, 'xmlLocation')
-        [xmlFile, xmlPath] = uigetfile('.xml',...
-            'path', handles.output.UserData.xmlLocation);
-    elseif isfield(handles.output.UserData, 'filepath')
-        [xmlFile, xmlPath] = uigetfile('.xml',...
-            'path', handles.output.UserData.filepath);
-    else
-        [xmlFile, xmlPath] = uigetfile('.xml');
-    end
-    xmlLocation = strcat(xmlPath, xmlFile);
-    if any(xmlLocation == 0)
-        handles.output.UserData.findXFlag = 1;
-        return
-    end
-    handles.output.UserData.xmlLocation = xmlLocation;
-    handles.output.UserData.findXFlag = 0;
-
-function saveFlag = saveState(handles)
-% Determine a save state for a later function. 
-%   3) All     ->  Data & graphs
-%   2) Im      ->  Graphs, just paths etc.
-%   1) Out     ->  All data, inc. images & trcking
-%   0) None    ->  Don't save anything
-    if handles.saveIm.Value && handles.saveTrack.Value
-        saveFlag = 3;
-    elseif handles.saveIm.Value
-        saveFlag = 2;
-    elseif handles.saveTrack.Value
-        saveFlag = 1;
-    else 
-        saveFlag = 0;
-    end
-
-function handles = findFiles(handles)
-    msg = {'1) Select image files'; '2) Select metadata in chosen format'};
-    handles.text20.String = msg;
-    % load .tiff files, will require metadata to be added
-    % Do actual image load after determining meta location
-    [filename, filepath] = uigetfile({'*.tiff'},'Select images to load',...
-    'MultiSelect', 'on');
-    if ~iscell(filename) || ~ischar(filepath) || ~any(filepath)
-        handles.output.UserData.findFFlag = 1;
-        return;
-    end
-    handles.output.UserData.filename = filename;
-    handles.output.UserData.filepath = filepath;
-    handles.output.UserData.findFFlag = 0;
- 
-function handles = findStruct(handles)
-    msgOld = 'Select Analysed Data (.mat)';
-    handles.text20.String = msgOld;
-    % Load pre-run .mat - should include metadata
-    [imFile, imPath] = uigetfile('.mat');
-    if any(imFile == 0) || any(imPath == 0)
-        handles.output.UserData.loadSFlag = 1;
-        return
-    end
-    handles.output.UserData.filename = imFile;
-    handles.output.UserData.filepath = imPath;
-    handles.output.UserData.loadSFlag = 0;
-    
-function handles = loadStruct(handles)
-    loadMsg = {'- Please wait -','Loading Data May Take Some Minutes...'};
-    handles.text20.String = loadMsg;
-    imPath = handles.output.UserData.filepath;
-    imFile = handles.output.UserData.filename;
-    handles.output.UserData = load(strcat(imPath, imFile));
-
-    if length(fields(handles.output.UserData)) == 1
-        f = fields(handles.output.UserData);
-        handles.output.UserData = handles.output.UserData.(f{1});
-    end
+run_schedule(handles);
 
     
 % --- Executes when user attempts to close figure1.
@@ -452,10 +321,12 @@ switch(get(handles.optionMenu, 'Value'))
     case 1 %Standard
         set(handles.radiobutton12, 'Enable', 'off');
         set(handles.radiobutton13, 'Enable', 'off');
+        set(handles.radiobutton14, 'Enable', 'off');
         
     case 2 %Advanced
         set(handles.radiobutton12, 'Enable', 'on');
         set(handles.radiobutton13, 'Enable', 'on');
+        set(handles.radiobutton14, 'Enable', 'on');
         
 end
 
@@ -562,3 +433,35 @@ function edit2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+
+function edit3_Callback(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit3 as text
+%        str2double(get(hObject,'String')) returns contents of edit3 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in radiobutton14.
+function radiobutton14_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton14 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton14

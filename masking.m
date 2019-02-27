@@ -1,8 +1,11 @@
 function images = masking(handles, images, minSize)
 
 for i = 1 : length(images)
+    msg = {'Applying Constrast Mask to Images'};
+    handles.text20.String = msg;
     waitbar2a(i/length(images), handles.wbCur, 'Mask Images');
-    waitbar2a(0.3 + i/length(images)/5, handles.wbOA);
+    waitbar2a(handles.barMax + i/length(images)/10, handles.wbOA);
+    handles.barMax = handles.barMax + 0.1;
     
     % bw threshold mask
     images(i).Mask = imbinarize(images(i).Image, 0.25); 

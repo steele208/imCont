@@ -5,11 +5,14 @@ for set = 1 : length(userData.tracked)
     skipped = [];
     for prtcl = 1 : numel(userData.tracked{set,1})
         %
-        waitbar2a((set/3)*prtcl/numel(userData.tracked{set,1}),...
+        waitbar2a((set/length(userData.tracked))*prtcl/...
+            numel(userData.tracked{set,1}),...
             handles.wbCur, 'Path Detection');
         
-        waitbar2a(0.8+(set+prtcl/numel(userData.tracked{set,1}))/...
-            wbRatio * 0.2, handles.wbOA); 
+        waitbar2a(handles.barMax +...
+            ((set+prtcl/numel(userData.tracked{set,1}))/wbRatio)*0.2,...
+            handles.wbOA); 
+        handles.barMax = handles.barMax + 0.2;
         
         % Per particle
         userData.tracked{set,1}(prtcl).AbsTime(1) = 0;
@@ -43,7 +46,6 @@ for set = 1 : length(userData.tracked)
             userData.tracked{set,1}(prtcl).AbsTime(pth) = ...
                 userData.tracked{set,1}(prtcl).Time(pth) - ...
                 userData.tracked{set,1}(prtcl).Time(1); 
-
         end
         
         % pad master path for mean path calculation
@@ -83,4 +85,9 @@ for set = 1 : length(userData.tracked)
     userData.tracked{set,1}(1).AvgPath(:,1) = [];
     userData.tracked{set,1}(1).AvgTime(:,1) = [];
 end
+
+res = str2double(userData.metaData(1).Data.ImageResolutionX);
+userData.tracked{set,1}(1).MSD = ...
+        (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2;
+
 handles.output.UserData = userData;

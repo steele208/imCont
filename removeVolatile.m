@@ -5,8 +5,11 @@ function imInfo = removeVolatile(handles, imInfo)
 %     1 : length - 1
 %}
 for imIdx = 1 : length(imInfo)
+    msg = {'Cross reference particles between frames'};
+    handles.text20.String = msg;
     waitbar2a(imIdx/length(imInfo), handles.wbCur, 'Detect Particles');
-    waitbar2a(0.5 + imIdx/length(imInfo)/5, handles.wbOA); % 70%
+    waitbar2a(handles.barMax + imIdx/length(imInfo)/10, handles.wbOA);
+    handles.barMax = handles.barMax + 0.1;
     
     xyThr = 1; % Accepted number of pixels moved between frames;
     

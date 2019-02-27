@@ -30,9 +30,12 @@ end
 X = 1; % Enum for readability
 Y = 2; % Enum for readability
 for im = 1 : length(imageInfo)
+    msg = {'Tracking particle movement over time',...
+        'Correlating particles between frames'};
+    handles.text20.String = msg;
     waitbar2a(im/length(imageInfo), handles.wbCur, 'Track Particles');
-    waitbar2a(0.7 + im/length(imageInfo)/10, handles.wbOA); % 70%    
-    
+    waitbar2a(handles.barMax + im/length(imageInfo)/10, handles.wbOA);    
+    handles.barMax = handles.barMax + 0.1;
     % Seperate by image sets, avoid trying to track between inconsistent
     % image sets
     if im == 1

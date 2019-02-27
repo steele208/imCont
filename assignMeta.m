@@ -8,8 +8,11 @@ function images = assignMeta(handles) %%%
     metaStr = [meta.Name];
     
     for imIdx = 1 : length(images)
-        %%%waitbar2a(0.2 + imIdx / length(images)/10, handles.wbOA);
-        %%%waitbar2a(imIdx / length(images), handles.wbCur,'Evaluate Metadata');
+        msg = {'Assigning MetaData to Images'};
+        handles.text20.String = msg;
+        waitbar2a(handles.barMax + imIdx / length(images)/10, handles.wbOA);
+        waitbar2a(imIdx / length(images), handles.wbCur,'Evaluate Metadata');
+        handles.barMax = handles.barMax + 0.1;
         
         nameIdx = strfind(metaStr, images(imIdx).Name);
         metaIdx = numel(strfind(metaStr(1:nameIdx), '.tiff')) + 1;

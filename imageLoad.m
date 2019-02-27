@@ -11,10 +11,13 @@ function imOut = imageLoad(handles)
     im = struct('Name', fname', 'ID', cell(N,1), 'Set', cell(N,1), ...
         'Image', cell(N,1), 'Mask', cell(N,1), 'Meta', cell(N,1));
     curSet = 1;
-    for i = 1 : numel(fname)       
+    for i = 1 : numel(fname)     
+        msg = {'Loading Images','Processing contrast per Set'};
+        handles.text20.String = msg;
         waitbar2a(i/numel(fname), handles.wbCur, 'Loading Images');
-        waitbar2a(i/numel(fname)/10, handles.wbOA);
-
+        waitbar2a(i/numel(fname)*0.15, handles.wbOA);
+        handles.barMax = 0.3;
+        
         % determine file linkings from name 
         ID = regexp(im(i).Name, 'r\d+c\d+f\d+', 'match');
         im(i).ID = ID{1};
