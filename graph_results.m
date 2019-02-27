@@ -1,15 +1,23 @@
-function userData = graph_results(userData)
+function userData = graph_results(handles)
 %{
  Needs:
    - Mean/nanmean per point
    - Mean per set subplot/single axis
 %}
-
+userData = handles.output.UserData;
+switch handles.radiobutton12.Value
+    case 0 % Don't display graphs
+        vis = 'off';
+    case 1
+        vis = 'on';
+end
 % Assuming that all images are at the same resolution:
 res = str2double(userData.metaData(1).Data.ImageResolutionX);
 userData.figure = [];
+
 for set = 1 : length(userData.tracked)
     userData.figure{end+1} = figure(set+1);
+    userData.figure{end}.Visible = vis;
     
     for pth = 1 : length(userData.tracked{set,1})
         subplot(2, 1, 1);
@@ -42,6 +50,7 @@ for set = 1 : length(userData.tracked)
 end
 
 userData.figure{end+1} = figure(1);
+userData.figure{end}.Visible = vis;
 hold on;
 for set = 1 : length(userData.tracked)
     plot(nanmean(userData.tracked{set,1}(1).AvgTime,2),...
@@ -50,7 +59,8 @@ for set = 1 : length(userData.tracked)
         'Gel Concentrations  1% to 8%'}, 'FontSize', 14);
     ylabel('Distance Travelled (m)');
     xlabel('Time (ms)');
-    axis([0 180 0 inf])
+    tMax = ceil(max(nanmean(userData.tracked{set,1}(1).AvgTime,2))/5)*5;
+    axis([0 tMax 0 inf])
     % Legend ...!? %
 end
 
