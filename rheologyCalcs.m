@@ -1,27 +1,25 @@
 function handles = rheologyCalcs(handles)
-tic;
-    uData = handles.output.UserData;
-    
-    %Waitbar
-    %waitbar2a(handles.barMax + imIdx / length(images)/10, handles.wbOA);
-    
     handles = make_MSD(handles);
     handles = creep_compliance(handles);
-    uData = G_Star(uData);
-    uData = G_Primes(uData);
-    
-    handles.output.UserData = uData;
-toc;
+    handles = G_Star(handles);
+    handles = G_Primes(handles);
+
 
 function handles = make_MSD(handles)
     uData = handles.output.UserData;
     res = str2double(uData.metaData(1).Data.ImageResolutionX);
     
     for set = 1 : length(uData.tracked)
+        waitbar2a(set / length(uData.tracked) * 0.5,...
+            handles.wbCur,'Evaluate J(t)');
+        waitbar2a(handles.barMax + set / length(uData.tracked) * 0.025,...
+            handles.wbOA);
         uData.tracked{set,1}(1).MSD = ...
             (res.*nanmean(uData.tracked{set,1}(1).AvgPath,2)).^2;
     end
-
+    handles.barMax = handles.barMax + 0.025;
+    handles.output.UserData = uData;
+    
 function handles = creep_compliance(handles)
 %{
     Creep compliance J(t)
@@ -35,26 +33,43 @@ function handles = creep_compliance(handles)
     Kb = physconst('Boltzman');
     constCre = (3 * pi * prtclRad) / (Dim * Kb * T);
     for set = 1 : length(uData.tracked)
-        waitbar2a(set / length(uData.tracked),'Evaluate J(t)');
+        waitbar2a(0.5 + set / length(uData.tracked) * 0.5,...
+            handles.wbCur, 'Evaluate J(t)');
+        waitbar2a(handles.barMax + set / length(uData.tracked) * 0.025,...
+            handles.wbOA);
         uData.tracked{set,1}(1).Creep = ...
             constCre .* uData.tracked{set}(1).MSD;      
     end
+    handles.barMax = handles.barMax + 0.025;
+    handles.output.UserData = uData;
     
-function uData = G_Star(uData)
+function handles = G_Star(handles)
 %{
     G*(omega) is the complex frequency (fft) from J(t)
     fft is applied to J(t) in each set
 %}
+    uData = handles.output.UserData;
     for set = 1 : length(uData.tracked)
-        waitbar2a(set / length(uData.tracked),['Evaluate G ', char(8432)]);
+        waitbar2a(set / length(uData.tracked),...
+            handles.wbCur, ['Evaluate G ', char(8432)]);
+        waitbar2a(handles.barMax + set / length(uData.tracked) * 0.025,...
+            handles.wbOA);
         uData.tracked{set}(1).G_Star = fft(uData.tracked{set}(1).Creep);
     end
+    handles.barMax = handles.barMax + 0.025;
+    handles.output.UserData = uData;
     
-function uData = G_Primes(uData)
+function handles = G_Primes(handles)
+    uData = handles.output.UserData;
     for set = 1 : length(uData.tracked)
-        waitbar2a(set / length(uData.tracked),['Evaluate G', char(697)]);
+        waitbar2a(set / length(uData.tracked),...
+            handles.wbCur, ['Evaluate G', char(697)]);
+        waitbar2a(handles.barMax + set / length(uData.tracked) * 0.025,...
+            handles.wbOA);
         uData.tracked{set}(1).G_Prime = (uData.tracked{set}(1).G_Star);
     end
+    handles.barMax = handles.barMax + 0.025;
+    handles.output.UserData = uData;
     
         
         
