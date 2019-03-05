@@ -22,7 +22,7 @@ function varargout = mainGUI(varargin)
 
 % Edit the above text to modify the response to help mainGUI
 
-% Last Modified by GUIDE v2.5 27-Feb-2019 10:12:05
+% Last Modified by GUIDE v2.5 06-Mar-2019 08:56:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -320,8 +320,14 @@ function optionMenu_Callback(hObject, eventdata, handles)
 switch(get(handles.optionMenu, 'Value'))
     case 1 %Standard
         set(handles.radiobutton12, 'Enable', 'off');
+        set(handles.radiobutton12, 'Value', 1);
+        
         set(handles.radiobutton13, 'Enable', 'off');
+        set(handles.radiobutton13, 'Value', 1);
+        
         set(handles.radiobutton14, 'Enable', 'off');
+        set(handles.radiobutton14, 'Value', 0);
+        radiobutton14_Callback(hObject, eventdata, handles)
         
     case 2 %Advanced
         set(handles.radiobutton12, 'Enable', 'on');
@@ -463,5 +469,11 @@ function radiobutton14_Callback(hObject, eventdata, handles)
 % hObject    handle to radiobutton14 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+switch handles.radiobutton14.Value
+    case 0
+        set(handles.edit3, 'Enable', 'off');
+        set(handles.edit3, 'String', '25');
+    case 1
+        set(handles.edit3, 'Enable', 'on');
+end
 
-% Hint: get(hObject,'Value') returns toggle state of radiobutton14
