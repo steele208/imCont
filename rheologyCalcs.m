@@ -63,10 +63,11 @@ function handles = G_Primes(handles)
     uData = handles.output.UserData;
     for set = 1 : length(uData.tracked)
         waitbar2a(set / length(uData.tracked),...
-            handles.wbCur, ['Evaluate G', char(697)]);
+            handles.wbCur, ['Evaluate G', char(697), '& G',char(697),char(697)]);
         waitbar2a(handles.barMax + set / length(uData.tracked) * 0.025,...
             handles.wbOA);
-        uData.tracked{set}(1).G_Prime = (uData.tracked{set}(1).G_Star);
+        uData.tracked{set}(1).G_Prime = real(uData.tracked{set}(1).G_Star);
+        uData.tracked{set}(1).G_DblPrime = imag(uData.tracked{set}(1).G_Star);
     end
     handles.barMax = handles.barMax + 0.025;
     handles.output.UserData = uData;
