@@ -1,10 +1,10 @@
 function handles = path_detection(handles)
 userData = handles.output.UserData;
-wbRatio = length(userData.tracked)+1;
+    %wbRatio = length(userData.tracked)+1;
 for set = 1 : length(userData.tracked)
     skipped = [];
     for prtcl = 1 : numel(userData.tracked{set,1})
-        %
+        %{
         waitbar2a((set/length(userData.tracked))*prtcl/...
             numel(userData.tracked{set,1}),...
             handles.wbCur, 'Path Detection');
@@ -12,7 +12,7 @@ for set = 1 : length(userData.tracked)
         waitbar2a(handles.barMax +...
             ((set+prtcl/numel(userData.tracked{set,1}))/wbRatio)*0.2,...
             handles.wbOA); 
-        
+        %}
         
         % Per particle
         userData.tracked{set,1}(prtcl).AbsTime(1) = 0;
@@ -51,13 +51,13 @@ for set = 1 : length(userData.tracked)
         % pad master path for mean path calculation
         % Grouped as matrix, mean path is calculated at time of graphing
         % using nanmean(M,2) for row-wise mean.
-        if length(userData.tracked{set,1}(prtcl).Time) < ...
-                length(userData.tracked{set,1}(1).AvgPath)
+        if size(userData.tracked{set,1}(prtcl).Time,1) < ...
+                size(userData.tracked{set,1}(1).AvgPath,1)
             len = length(userData.tracked{set,1}(prtcl).Time);
             pad = size(userData.tracked{set,1}(1).AvgPath,1);
             userData.tracked{set,1}(prtcl).Position(len:pad,3) = NaN;
-        elseif length(userData.tracked{set,1}(prtcl).Time) > ...
-                length(userData.tracked{set,1}(1).AvgPath)
+        elseif size(userData.tracked{set,1}(prtcl).Time,1) > ...
+                size(userData.tracked{set,1}(1).AvgPath,1)
             len = size(userData.tracked{set,1}(1).AvgPath,1);
             pad = length(userData.tracked{set,1}(prtcl).Time);
             userData.tracked{set,1}(1).AvgPath(len:pad,1) = NaN;
@@ -65,13 +65,13 @@ for set = 1 : length(userData.tracked)
         userData.tracked{set,1}(1).AvgPath(:,end+1) = ...
             userData.tracked{set,1}(prtcl).Position(:,3);
         
-        if length(userData.tracked{set,1}(prtcl).Time) < ...
-                length(userData.tracked{set,1}(1).AvgTime)
+        if size(userData.tracked{set,1}(prtcl).Time,1) < ...
+                size(userData.tracked{set,1}(1).AvgTime,1)
             len = length(userData.tracked{set,1}(prtcl).Time);
             pad = size(userData.tracked{set,1}(1).AvgTime,1);
             userData.tracked{set,1}(prtcl).Time(len:pad,1) = NaN;
-        elseif length(userData.tracked{set,1}(prtcl).Time) > ...
-                length(userData.tracked{set,1}(1).AvgTime)
+        elseif size(userData.tracked{set,1}(prtcl).Time,1) > ...
+                size(userData.tracked{set,1}(1).AvgTime,1)
             len = size(userData.tracked{set,1}(1).AvgTime,1);
             pad = length(userData.tracked{set,1}(prtcl).Time);
             userData.tracked{set,1}(1).AvgTime(len+1:pad,1:prtcl) = NaN;
@@ -81,9 +81,21 @@ for set = 1 : length(userData.tracked)
             userData.tracked{set,1}(prtcl).Time;
         
     end
-    userData.tracked{set,1}(skipped) = [];
-    userData.tracked{set,1}(1).AvgPath(:,1) = [];
-    userData.tracked{set,1}(1).AvgTime(:,1) = [];
+    
+    tmp_a = userData.tracked{set,1}(1).AvgTime; % store in tmp variable
+    tmp_a(tmp_a == 0) = NaN;                    % convert all zeros to NaN
+    userData.tracked{set,1}(1).AvgPath2 = nanmean(tmp_a,2); % Store nanmean
+    
+    if any(skipped == 1)
+        temp_ = userData.tracked{set,1}(1);
+        userData.tracked{set,1}(skipped) = [];
+        userData.tracked{set,1}(1).AvgPath = temp_.AvgPath;
+        userData.tracked{set,1}(1).AvgTime = temp_.AvgTime;
+    else
+        userData.tracked{set,1}(skipped) = [];
+        userData.tracked{set,1}(1).AvgPath(:,1) = [];
+        userData.tracked{set,1}(1).AvgTime(:,1) = [];
+    end
 end
 handles.barMax = handles.barMax + 0.2;
 res = str2double(userData.metaData(1).Data.ImageResolutionX);
