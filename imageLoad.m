@@ -16,7 +16,7 @@ function handles = imageLoad(handles)
         handles.text20.String = msg;
         waitbar2a(i/numel(fname), handles.wbCur, 'Loading Images');
         waitbar2a(i/numel(fname)*0.15, handles.wbOA);
-        handles.barMax = 0.3;
+        
         
         % determine file linkings from name 
         ID = regexp(im(i).Name, 'r\d+c\d+f\d+', 'match');
