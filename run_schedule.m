@@ -24,6 +24,7 @@ function handles = isNew(handles)
             return;
         end
         %load images
+        handles.barMax = 0.3;
         handles = imageLoad(handles);
         %load metadata
         msg = {'Loading MetaData','May take some minutes!'};
@@ -34,34 +35,37 @@ function handles = isNew(handles)
         handles = path_detection(handles);
         
 function handles = isLoad(handles)
-switch handles.loadXML.Value
-        case 0 % Load Data as is
-            msg = {'Loading Pre-processed Data','May take some minutes!'};
-            handles.text20.String = msg;
-            handles = findStruct(handles);
-            if handles.output.UserData.loadSFlag
-                return;
-            end
-            handles = loadStruct(handles);
-        case 1 % change associated meta
-            handles = findStruct(handles);
-            if handles.output.UserData.loadSFlag
-                return;
-            end
-            handles = findXML(handles);
-            if handles.output.UserData.findXFlag
-                return;
-            end
-            % load data
-            handles = loadStruct(handles);
-            %load metadata
-            msg = {'Loading MetaData','May take some minutes!'};
-            handles.text20.String = msg;
-            handles.output.UserData.metaData = ...
-                readXML(handles.output.UserData.xmlLocation);
-            handles.output.UserData = tracking(handles);
-            handles = path_detection(handles);
-end
+
+    handles.barMax = 0.6;
+    switch handles.loadXML.Value
+            case 0 % Load Data as is
+                msg = {'Loading Pre-processed Data','May take some minutes!'};
+                handles.text20.String = msg;
+                handles = findStruct(handles);
+                if handles.output.UserData.loadSFlag
+                    return;
+                end
+                handles = loadStruct(handles);
+                handles = path_detection(handles);
+            case 1 % change associated meta
+                handles = findStruct(handles);
+                if handles.output.UserData.loadSFlag
+                    return;
+                end
+                handles = findXML(handles);
+                if handles.output.UserData.findXFlag
+                    return;
+                end
+                % load data
+                handles = loadStruct(handles);
+                %load metadata
+                msg = {'Loading MetaData','May take some minutes!'};
+                handles.text20.String = msg;
+                handles.output.UserData.metaData = ...
+                    readXML(handles.output.UserData.xmlLocation);
+                handles.output.UserData = tracking(handles);
+                handles = path_detection(handles);
+    end
     
 function handles = findXML(handles)
     msgOld = 'Select Meta Data (.xml)';
@@ -89,6 +93,7 @@ function saveFlag = saveState(handles)
 %   2) Im      ->  Graphs, just paths etc.
 %   1) Out     ->  All data, inc. images & trcking
 %   0) None    ->  Don't save anything
+   
     if handles.saveIm.Value && handles.saveTrack.Value
         saveFlag = 3;
     elseif handles.saveIm.Value
@@ -132,8 +137,9 @@ function handles = loadStruct(handles)
     handles.text20.String = loadMsg;
     imPath = handles.output.UserData.filepath;
     imFile = handles.output.UserData.filename;
+    tic;
     handles.output.UserData = load(strcat(imPath, imFile));
-
+    toc;
     if length(fields(handles.output.UserData)) == 1
         f = fields(handles.output.UserData);
         handles.output.UserData = handles.output.UserData.(f{1});
