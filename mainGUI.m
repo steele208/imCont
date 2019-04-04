@@ -22,7 +22,7 @@ function varargout = mainGUI(varargin)
 
 % Edit the above text to modify the response to help mainGUI
 
-% Last Modified by GUIDE v2.5 06-Mar-2019 08:56:56
+% Last Modified by GUIDE v2.5 03-Apr-2019 14:10:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -476,4 +476,3 @@ switch handles.radiobutton14.Value
     case 1
         set(handles.edit3, 'Enable', 'on');
 end
-
