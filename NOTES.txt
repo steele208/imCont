@@ -1,0 +1,10 @@
+04-04-2019//
+Overhaul on time:
+	- Calculate difference in time between each frame
+		-> avg differnce (may not be needed)
+	- Create time vector of n points at t spacing
+		-> n is number of G' G'' points
+		-> t is frame time difference
+	- Encorporate new timing into graphs etc. 
+	
+
