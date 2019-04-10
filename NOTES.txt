@@ -7,4 +7,14 @@ Overhaul on time:
 		-> t is frame time difference
 	- Encorporate new timing into graphs etc. 
 	
+10-04-2019//
+"skip set" in contrast GUI needs to be fixed
+	- doesn't remove the file names from struct, thus tries to 
+		contrast and open Masks that don't exist
 
+Time overhaul considered but not implimented.
+	- mean time step
+	- 0 : mTimStep : (nPoints - 1) * mTimeStep
+	
+MSD not calculating correctly - nanmean may not be a solution. 
+	- still stepping back in MSD
