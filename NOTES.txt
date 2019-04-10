@@ -18,3 +18,5 @@ Time overhaul considered but not implimented.
 	
 MSD not calculating correctly - nanmean may not be a solution. 
 	- still stepping back in MSD
+	- May be due to zero'ing all time points 
+		- consider not using relative time for MSD calculation
