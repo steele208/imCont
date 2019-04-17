@@ -35,6 +35,9 @@ function handles = imageLoad(handles)
 			% GUI for setting contrast levels
             output = new_cTool(im(i).Image, options); 
 			UserData = output.UserData;
+            if isfield(UserData,'movDist')
+                handles.output.UserData.movDist = UserData.movDist;
+            end
 			delete(output);
 			
 			if UserData.Continue
