@@ -57,6 +57,9 @@ for set = 1 : length(userData.tracked)
     hold on;
     plot(userData.tracked{set,1}(1).AvgTime(:,t),...
         userData.tracked{set,1}(1).G_DblPrime);
+    legend('G Prime','G Double Prime');
+    ylabel('Log_{10} G*');
+    xlabel('Time (ms)');
     
     subplot(2, 1, 2);
     plot(userData.tracked{set,1}(1).AvgTime(:,t),...
