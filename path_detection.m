@@ -1,6 +1,7 @@
 function handles = path_detection(handles)
 userData = handles.output.UserData;
     %wbRatio = length(userData.tracked)+1;
+    setTSteps = zeros(1,length(userData.tracked));
 for set = 1 : length(userData.tracked)
     skipped = [];
     for prtcl = 1 : numel(userData.tracked{set})
@@ -50,9 +51,13 @@ for set = 1 : length(userData.tracked)
         
         % Mean timestep calculation per set
         userData.tracked{set}(1).TimeStep = ...
-            mean([userData.tracked{set}(prtcl).meanTStep]);
+            mean([userData.tracked{set}.meanTStep]);
+        setTSteps(set) = userData.tracked{set}(1).TimeStep;
     end
+    
+    userData.tracked{set}(skipped) = [];
 end
+userData.TimeStep = mean(setTSteps);
 handles.barMax = handles.barMax + 0.2;
 res = str2double(userData.metaData(1).Data.ImageResolutionX);
 userData.tracked{set,1}(1).MSD = ...
