@@ -15,9 +15,10 @@ for set = 1 : length(userData.tracked)
         %}
         
         % Per particle
-        userData.tracked{set,1}(prtcl).AbsTime(1) = 0;
+        %userData.tracked{set,1}(prtcl).AbsTime(1) = 0;
         userData.tracked{set,1}(prtcl).Displacement(1) = 0;
         userData.tracked{set,1}(prtcl).Position(1,3) = 0;
+        %{
         if prtcl == 1
             userData.tracked{set,1}(1).AvgPath = ...
                 userData.tracked{set,1}(1).Position(:,3);
@@ -25,7 +26,8 @@ for set = 1 : length(userData.tracked)
             userData.tracked{set,1}(1).AvgTime = ...
                 userData.tracked{set,1}(1).Time;
         end
-        if length(userData.tracked{set,1}(prtcl).Time) < 2
+        %}
+        if length(userData.tracked{set,1}(prtcl).Time) <= 5
             skipped(end + 1) = prtcl; %#ok<AGROW>
             continue
         end
@@ -43,11 +45,14 @@ for set = 1 : length(userData.tracked)
             userData.tracked{set,1}(prtcl).Displacement(1) = ...
                 d + userData.tracked{set,1}(prtcl).Displacement(1);
             % time as absolute
+            %{
             userData.tracked{set,1}(prtcl).AbsTime(pth) = ...
                 userData.tracked{set,1}(prtcl).Time(pth) - ...
                 userData.tracked{set,1}(prtcl).Time(1); 
+            %}
         end
         
+        %{
         % pad master path for mean path calculation
         % Grouped as matrix, mean path is calculated at time of graphing
         % using nanmean(M,2) for row-wise mean.
@@ -85,16 +90,19 @@ for set = 1 : length(userData.tracked)
     tmp_a = userData.tracked{set,1}(1).AvgTime; % store in tmp variable
     tmp_a(tmp_a == 0) = NaN;                    % convert all zeros to NaN
     userData.tracked{set,1}(1).AvgPath2 = nanmean(tmp_a,2); % Store nanmean
+    %}
+        
+    end
     
     if any(skipped == 1)
-        temp_ = userData.tracked{set,1}(1);
+        %temp_ = userData.tracked{set,1}(1);
         userData.tracked{set,1}(skipped) = [];
-        userData.tracked{set,1}(1).AvgPath = temp_.AvgPath;
-        userData.tracked{set,1}(1).AvgTime = temp_.AvgTime;
+        %userData.tracked{set,1}(1).AvgPath = temp_.AvgPath;
+        %userData.tracked{set,1}(1).AvgTime = temp_.AvgTime;
     else
         userData.tracked{set,1}(skipped) = [];
-        userData.tracked{set,1}(1).AvgPath(:,1) = [];
-        userData.tracked{set,1}(1).AvgTime(:,1) = [];
+       % userData.tracked{set,1}(1).AvgPath(:,1) = [];
+        %userData.tracked{set,1}(1).AvgTime(:,1) = [];
     end
 end
 handles.barMax = handles.barMax + 0.2;
