@@ -5,22 +5,12 @@ userData = handles.output.UserData;
 for set = 1 : length(userData.tracked)
     skipped = [];
     for prtcl = 1 : numel(userData.tracked{set})
-        %{
-        waitbar2a((set/length(userData.tracked))*prtcl/...
-            numel(userData.tracked{set,1}),...
-            handles.wbCur, 'Path Detection');
-        
-        waitbar2a(handles.barMax +...
-            ((set+prtcl/numel(userData.tracked{set,1}))/wbRatio)*0.2,...
-            handles.wbOA); 
-        %}
         
         % Per particle
-        %userData.tracked{set,1}(prtcl).AbsTime(1) = 0;
         userData.tracked{set}(prtcl).Displacement(1) = 0;
         userData.tracked{set}(prtcl).Position(1,3) = 0;
 
-        if length(userData.tracked{set}(prtcl).Time) <= 5
+        if length(userData.tracked{set}(prtcl).Time) <= 3%5
             skipped(end + 1) = prtcl; %#ok<AGROW>
             continue
         end
@@ -56,11 +46,13 @@ for set = 1 : length(userData.tracked)
     end
     
     userData.tracked{set}(skipped) = [];
+    res = str2double(userData.metaData(1).Data.ImageResolutionX);
+    userData.tracked{set,1}(1).MSD = ...
+        (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2;
 end
 userData.TimeStep = mean(setTSteps);
 handles.barMax = handles.barMax + 0.2;
-res = str2double(userData.metaData(1).Data.ImageResolutionX);
-userData.tracked{set,1}(1).MSD = ...
-        (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2;
+
+
 
 handles.output.UserData = userData;
