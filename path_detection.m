@@ -1,105 +1,58 @@
 function handles = path_detection(handles)
 userData = handles.output.UserData;
     %wbRatio = length(userData.tracked)+1;
+    setTSteps = zeros(1,length(userData.tracked));
 for set = 1 : length(userData.tracked)
     skipped = [];
-    for prtcl = 1 : numel(userData.tracked{set,1})
-        %{
-        waitbar2a((set/length(userData.tracked))*prtcl/...
-            numel(userData.tracked{set,1}),...
-            handles.wbCur, 'Path Detection');
-        
-        waitbar2a(handles.barMax +...
-            ((set+prtcl/numel(userData.tracked{set,1}))/wbRatio)*0.2,...
-            handles.wbOA); 
-        %}
+    for prtcl = 1 : numel(userData.tracked{set})
         
         % Per particle
-        userData.tracked{set,1}(prtcl).AbsTime(1) = 0;
-        userData.tracked{set,1}(prtcl).Displacement(1) = 0;
-        userData.tracked{set,1}(prtcl).Position(1,3) = 0;
-        if prtcl == 1
-            userData.tracked{set,1}(1).AvgPath = ...
-                userData.tracked{set,1}(1).Position(:,3);
-        
-            userData.tracked{set,1}(1).AvgTime = ...
-                userData.tracked{set,1}(1).Time;
-        end
-        if length(userData.tracked{set,1}(prtcl).Time) < 2
+        userData.tracked{set}(prtcl).Displacement(1) = 0;
+        userData.tracked{set}(prtcl).Position(1,3) = 0;
+
+        if length(userData.tracked{set}(prtcl).Time) <= 3%5
             skipped(end + 1) = prtcl; %#ok<AGROW>
             continue
         end
-        for pth = 2 : size(userData.tracked{set,1}(prtcl).Position,1)
+        
+        % Mean time step calculation per particle
+        userData.tracked{set}(prtcl).meanTStep = ...
+            mean(userData.tracked{set}(prtcl).Time);
+        userData.tracked{set}(prtcl).stdTstep = ...
+            std(userData.tracked{set}(prtcl).Time);
+        
+        for pth = 2 : size(userData.tracked{set}(prtcl).Position,1)
             % find squared difference / path movement
             d = sqrt(...
-                (userData.tracked{set,1}(prtcl).Position(pth,1) - ...
-                userData.tracked{set,1}(prtcl).Position(pth-1,1))^2 ...
-              + (userData.tracked{set,1}(prtcl).Position(pth,2) - ...
-              userData.tracked{set,1}(prtcl).Position(pth-1,2))^2);
+                (userData.tracked{set}(prtcl).Position(pth,1) - ...
+                userData.tracked{set}(prtcl).Position(pth-1,1))^2 ...
+              + (userData.tracked{set}(prtcl).Position(pth,2) - ...
+              userData.tracked{set}(prtcl).Position(pth-1,2))^2);
+          
             % Absolute path length
-            userData.tracked{set,1}(prtcl).Position(pth,3) = ...
-                d + userData.tracked{set,1}(prtcl).Position(pth-1,3);
+            userData.tracked{set}(prtcl).Position(pth,3) = ...
+                d + userData.tracked{set}(prtcl).Position(pth-1,3);
+            
             % Sum of displacement
-            userData.tracked{set,1}(prtcl).Displacement(1) = ...
-                d + userData.tracked{set,1}(prtcl).Displacement(1);
-            % time as absolute
-            userData.tracked{set,1}(prtcl).AbsTime(pth) = ...
-                userData.tracked{set,1}(prtcl).Time(pth) - ...
-                userData.tracked{set,1}(prtcl).Time(1); 
+            userData.tracked{set}(prtcl).Displacement(1) = ...
+                d + userData.tracked{set}(prtcl).Displacement(1);
+
         end
         
-        % pad master path for mean path calculation
-        % Grouped as matrix, mean path is calculated at time of graphing
-        % using nanmean(M,2) for row-wise mean.
-        if size(userData.tracked{set,1}(prtcl).Time,1) < ...
-                size(userData.tracked{set,1}(1).AvgPath,1)
-            len = length(userData.tracked{set,1}(prtcl).Time);
-            pad = size(userData.tracked{set,1}(1).AvgPath,1);
-            userData.tracked{set,1}(prtcl).Position(len:pad,3) = NaN;
-        elseif size(userData.tracked{set,1}(prtcl).Time,1) > ...
-                size(userData.tracked{set,1}(1).AvgPath,1)
-            len = size(userData.tracked{set,1}(1).AvgPath,1);
-            pad = length(userData.tracked{set,1}(prtcl).Time);
-            userData.tracked{set,1}(1).AvgPath(len:pad,1) = NaN;
-        end
-        userData.tracked{set,1}(1).AvgPath(:,end+1) = ...
-            userData.tracked{set,1}(prtcl).Position(:,3);
-        
-        if size(userData.tracked{set,1}(prtcl).Time,1) < ...
-                size(userData.tracked{set,1}(1).AvgTime,1)
-            len = length(userData.tracked{set,1}(prtcl).Time);
-            pad = size(userData.tracked{set,1}(1).AvgTime,1);
-            userData.tracked{set,1}(prtcl).Time(len:pad,1) = NaN;
-        elseif size(userData.tracked{set,1}(prtcl).Time,1) > ...
-                size(userData.tracked{set,1}(1).AvgTime,1)
-            len = size(userData.tracked{set,1}(1).AvgTime,1);
-            pad = length(userData.tracked{set,1}(prtcl).Time);
-            userData.tracked{set,1}(1).AvgTime(len+1:pad,1:prtcl) = NaN;
-            userData.tracked{set,1}(2).AvgTime = prtcl;
-        end
-        userData.tracked{set,1}(1).AvgTime(:,end+1) = ...
-            userData.tracked{set,1}(prtcl).Time;
-        
+        % Mean timestep calculation per set
+        userData.tracked{set}(1).TimeStep = ...
+            mean([userData.tracked{set}.meanTStep]);
+        setTSteps(set) = userData.tracked{set}(1).TimeStep;
     end
     
-    tmp_a = userData.tracked{set,1}(1).AvgTime; % store in tmp variable
-    tmp_a(tmp_a == 0) = NaN;                    % convert all zeros to NaN
-    userData.tracked{set,1}(1).AvgPath2 = nanmean(tmp_a,2); % Store nanmean
-    
-    if any(skipped == 1)
-        temp_ = userData.tracked{set,1}(1);
-        userData.tracked{set,1}(skipped) = [];
-        userData.tracked{set,1}(1).AvgPath = temp_.AvgPath;
-        userData.tracked{set,1}(1).AvgTime = temp_.AvgTime;
-    else
-        userData.tracked{set,1}(skipped) = [];
-        userData.tracked{set,1}(1).AvgPath(:,1) = [];
-        userData.tracked{set,1}(1).AvgTime(:,1) = [];
-    end
-end
-handles.barMax = handles.barMax + 0.2;
-res = str2double(userData.metaData(1).Data.ImageResolutionX);
-userData.tracked{set,1}(1).MSD = ...
+    userData.tracked{set}(skipped) = [];
+    res = str2double(userData.metaData(1).Data.ImageResolutionX);
+    userData.tracked{set,1}(1).MSD = ...
         (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2;
+end
+userData.TimeStep = mean(setTSteps);
+handles.barMax = handles.barMax + 0.2;
+
+
 
 handles.output.UserData = userData;

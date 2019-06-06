@@ -22,7 +22,7 @@ function varargout = new_cTool(varargin)
 
 % Edit the above text to modify the response to help new_cTool
 
-% Last Modified by GUIDE v2.5 17-Apr-2019 13:54:04
+% Last Modified by GUIDE v2.5 01-May-2019 11:40:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -326,19 +326,17 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu1
-switch handles.popupmenu1.Value
-    case 1  % V. slow
-        handles.output.UserData.movDist = 1;
-    case 2  % slow
-        handles.output.UserData.movDist = 2;
-    case 3  % Medium
+switch hObject.Value
+    case 1
+        % slow
         handles.output.UserData.movDist = 5;
-    case 4  % Fast
+    case 2
+        % medium
         handles.output.UserData.movDist = 10;
-    case 5  % V. Fast
+    case 3
+        % fast
         handles.output.UserData.movDist = 15;
 end
-
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu1_CreateFcn(hObject, eventdata, handles)
