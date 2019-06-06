@@ -51,7 +51,7 @@ for im = 1 : length(imageInfo)
             'lastPos', imageInfo(im).trkInfo.Corners{1}(X:Y));
     end
     
-    for prtcl = 1 : length(imageInfo(im).trkInfo.Corners)
+    for prtcl = 1 : imageInfo(im).trkInfo.NumObjects
             % For image #1, all particles will need to be added as new
             if im == 1
                 if prtcl == 1
@@ -61,7 +61,7 @@ for im = 1 : length(imageInfo)
                 end
             else
                 prtclLoc = imageInfo(im).trkInfo.Corners{prtcl}(1:2);
-                % find the first corresponding last location that fit's all
+                % find the first corresponding 'last location' that fits all
                 % on dimension 2, i.e. fits with x & y coord. 
                 prtclIdx = find(all(vertcat(particles.lastPos) >= ...
                     prtclLoc - movDist & vertcat(particles.lastPos) <= ...
@@ -70,11 +70,16 @@ for im = 1 : length(imageInfo)
                 % If a corresponding particle is found, add it to tracked
                 % stem, else add a new particle
                 if prtclIdx
+                    % make sure particle hasn't been added already
                     if all(particles(prtclIdx).Position(end,1:2) == ...
                             imageInfo(im).trkInfo.Corners{prtcl}(X:Y)) ...
                             && particles(prtclIdx).Time(end,1) == ...
                             imageInfo(im).Meta.RelTime
                         added = 1;
+                    % New particle found for existing stem - add
+                    % accordingly
+                    elseif abs(particles(prtclIdx).Time - imageInfo(im).Meta.RelTime) > 1
+                        added = 0;
                     else
                         particles(prtclIdx).Position(end + 1,1:2) = ...
                             imageInfo(im).trkInfo.Corners{prtcl}(X:Y); 
