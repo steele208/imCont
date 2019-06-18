@@ -2,6 +2,9 @@ function handles = path_detection(handles)
 userData = handles.output.UserData;
     %wbRatio = length(userData.tracked)+1;
     setTSteps = zeros(1,length(userData.tracked));
+    
+    % initalisation for new struct field
+    userData.badSet = []; 
 for set = 1 : length(userData.tracked)
     skipped = [];
     for prtcl = 1 : numel(userData.tracked{set})
@@ -10,14 +13,14 @@ for set = 1 : length(userData.tracked)
         userData.tracked{set}(prtcl).Displacement(1) = 0;
         userData.tracked{set}(prtcl).Position(1,3) = 0;
 
-        if length(userData.tracked{set}(prtcl).Time) <= 3%5
+        if length(userData.tracked{set}(prtcl).Time) < 3%5
             skipped(end + 1) = prtcl; %#ok<AGROW>
             continue
         end
         
         % Mean time step calculation per particle
         userData.tracked{set}(prtcl).meanTStep = ...
-            mean(userData.tracked{set}(prtcl).Time);
+            mean(diff(userData.tracked{set}(prtcl).Time));
         userData.tracked{set}(prtcl).stdTstep = ...
             std(userData.tracked{set}(prtcl).Time);
         
@@ -40,19 +43,19 @@ for set = 1 : length(userData.tracked)
         end
         
         % Mean timestep calculation per set
-        userData.tracked{set}(1).TimeStep = ...
-            mean([userData.tracked{set}.meanTStep]);
-        setTSteps(set) = userData.tracked{set}(1).TimeStep;
+        setTSteps(set) = mean([userData.tracked{set}.meanTStep]);
     end
     
+    % Remove any particle sets of < N tracked particles (N = 3, line 13)
     userData.tracked{set}(skipped) = [];
     res = str2double(userData.metaData(1).Data.ImageResolutionX);
-    userData.tracked{set,1}(1).MSD = ...
-        (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2;
+    %userData.tracked{set,1}(1).MSD = ...
+    %    (res.*nanmean(userData.tracked{set,1}(1).AvgPath,2)).^2;
+    if length(userData.tracked{set}) < 100
+        userData.badSet(end + 1) = set;
+    end
 end
+
 userData.TimeStep = mean(setTSteps);
 handles.barMax = handles.barMax + 0.2;
-
-
-
 handles.output.UserData = userData;
