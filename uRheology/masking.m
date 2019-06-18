@@ -1,5 +1,6 @@
 function handles = masking(handles)
-images = handles.output.UserData.imData;
+userData = handles.output.UserData;
+images = userData.imData;
 
 if ~isfield(userData, 'minSize')
     minSize = 7;

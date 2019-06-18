@@ -29,13 +29,14 @@ function handles = isNew(handles)
         %load metadata
         msg = {'Loading MetaData','May take some minutes!'};
         handles.text20.String = msg;
-        
+        pause(0.001);
         handles.output.UserData.metaData = ...
             readXML(handles.output.UserData.xmlLocation);
-        handles = masking(handles, minSize);
+        handles = masking(handles);
         handles = assignMeta(handles);
         handles = tracking(handles);
-        handles = path_detection(handles);
+        handles = MSD(handles);
+        %handles = path_detection(handles);
         
 function handles = isLoad(handles)
 
