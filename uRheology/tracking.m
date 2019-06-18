@@ -1,31 +1,12 @@
 function handles = tracking(handles)
 userData = handles.output.UserData;
 %% Find All Particles
-
-if ~isfield(userData, 'minSize')
-    minSize = 7;
-else
-    minSize = userData.minSize;
-end
-
 if ~isfield(userData, 'movDist')
     movDist = 5;
 else
     movDist = userData.movDist;
 end
 
-%if isempty(userData.imData(1).Meta)
-    handles = assignMeta(handles);
-%end
-
-
-imageInfo = handles.output.UserData.imData;
-if isempty(imageInfo(1).Mask)
-    handles = masking(handles, minSize);
-    handles = removeVolatile(handles);
-elseif ~isfield(imageInfo, 'trkInfo')
-    handles = removeVolatile(handles);
-end
 %% Evaluate Particle Displacements -> Expanding UID massively, consider rehaul.
 X = 1; % Enum for readability
 Y = 2; % Enum for readability

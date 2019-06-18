@@ -29,8 +29,11 @@ function handles = isNew(handles)
         %load metadata
         msg = {'Loading MetaData','May take some minutes!'};
         handles.text20.String = msg;
+        
         handles.output.UserData.metaData = ...
             readXML(handles.output.UserData.xmlLocation);
+        handles = masking(handles, minSize);
+        handles = assignMeta(handles);
         handles = tracking(handles);
         handles = path_detection(handles);
         
