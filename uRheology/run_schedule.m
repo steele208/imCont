@@ -34,6 +34,7 @@ function handles = isNew(handles)
             readXML(handles.output.UserData.xmlLocation);
         handles = masking(handles);
         handles = assignMeta(handles);
+        handles = create_time(handles);
         handles = tracking(handles);
         handles = MSD(handles);
         %handles = path_detection(handles);
