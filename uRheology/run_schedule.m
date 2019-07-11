@@ -35,7 +35,8 @@ function handles = isNew(handles)
         handles = masking(handles);
         handles = assignMeta(handles);
         handles = create_time(handles);
-        handles = tracking(handles);
+        %handles = tracking(handles);
+        handles = Data_build(handles);
         handles = MSD(handles);
         %handles = path_detection(handles);
         

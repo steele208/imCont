@@ -2,7 +2,7 @@ function handles = tracking(handles)
 userData = handles.output.UserData;
 %% Find All Particles
 if ~isfield(userData, 'movDist')
-    movDist = 5;
+    movDist = 10;
 else
     movDist = userData.movDist;
 end

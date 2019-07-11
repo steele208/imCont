@@ -5,7 +5,7 @@ userData = handles.output.UserData;
 
 
 %% MSD Calc
-for time = 2 : length (SOME_TIME)
+for time = 2 : length(userData.meanTime)
 % Will need to skip particles / deal with inconsistent numbers of tracked??
     for prtcl = 1 : length(PARTICLES_AT_TIME)
         
