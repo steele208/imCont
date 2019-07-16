@@ -1,5 +1,12 @@
-function handles = masking(handles, minSize)
-images = handles.output.UserData.imData;
+function handles = masking(handles)
+userData = handles.output.UserData;
+images = userData.imData;
+
+if ~isfield(userData, 'minSize')
+    minSize = 7;
+else
+    minSize = userData.minSize;
+end
 
 for i = 1 : length(images)
     msg = {'Applying Constrast Mask to Images'};

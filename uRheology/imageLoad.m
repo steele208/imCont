@@ -11,6 +11,8 @@ function handles = imageLoad(handles)
     im = struct('Name', fname', 'ID', cell(N,1), 'Set', cell(N,1), ...
         'Image', cell(N,1), 'Mask', cell(N,1), 'Meta', cell(N,1));
     curSet = 1;
+    setSize = 0;
+    biggestSet = 0;
     for i = 1 : numel(fname)     
         msg = {'Loading Images','Processing contrast per Set'};
         handles.text20.String = msg;
@@ -25,7 +27,12 @@ function handles = imageLoad(handles)
         if i > 1 && ~strcmp(im(i).ID, im(i-1).ID)
             % increase set number for new set
             curSet = curSet + 1;
+            if setSize > biggestSet
+                biggestSet = setSize;
+            end
+            setSize = 0;
         end
+        setSize = setSize + 1;
         im(i).Set = curSet;
         
         % Determine contrast using first image of a set
@@ -54,4 +61,5 @@ function handles = imageLoad(handles)
         end
     end
     handles.output.UserData.imData = im;
+    handles.output.UserData.setLength = biggestSet;
 end

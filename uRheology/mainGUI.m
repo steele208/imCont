@@ -187,6 +187,7 @@ function contButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 waitbar2a(0, handles.wbCur, '');
 waitbar2a(0, handles.wbOA);
+hObject.String = 'Restart Processing';
 run_schedule(handles);
 
     
