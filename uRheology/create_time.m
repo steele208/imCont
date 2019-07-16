@@ -14,4 +14,5 @@ end
 
 %% Time correlation #1 - Mean comparisson
 handles.output.UserData.meanTime = nanmean(timeVec, 2);
-
+    %use interp to compare and allign data to a specific time.. may cause
+    %many to one mapping..? 
