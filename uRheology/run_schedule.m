@@ -52,7 +52,10 @@ function handles = isLoad(handles)
                     return;
                 end
                 handles = loadStruct(handles);
-                handles = path_detection(handles);
+                if ~isfield(handles.output.UserData, 'calcs') 
+                    handles = MSD(handles);
+                end
+                %handles = path_detection(handles);
             case 1 % change associated meta
                 handles = findStruct(handles);
                 if handles.output.UserData.loadSFlag
@@ -70,7 +73,10 @@ function handles = isLoad(handles)
                 handles.output.UserData.metaData = ...
                     readXML(handles.output.UserData.xmlLocation);
                 handles.output.UserData = tracking(handles);
-                handles = path_detection(handles);
+                %handles = path_detection(handles);
+                if ~isfield(handles.output.UserData, 'calcs') 
+                    handles = MSD(handles);
+                end
     end
     
 function handles = findXML(handles)
