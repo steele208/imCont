@@ -49,9 +49,15 @@ for set = 1 : length(userData.tracked)
             break;
         end
     end
-    
-    userData.MSD_data{set,1} = MSD;
-    userData.MSD{set,1} = nanmean(MSD,1);
+    partPerTime = zeros(1, size(MSD, 2));
+    for idx = 1 : size(MSD ,2)
+        partPerTime(idx) = nnz(~isnan(MSD(:,idx)));
+    end
+    % partPerTime -> Particles/time 
+    % Could be used to only calculate MSD based on an appropriate number of
+    % particles being available to calculate from.
+    userData.calcs.MSD_data{set,1} = MSD;
+    userData.calcs.MSD{set,1} = nanmean(MSD);
 end
 % save output in handles struct
 handles.output.UserData = userData;

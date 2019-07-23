@@ -16,7 +16,7 @@ function makeVideo(file, saveDir, imData, start, leng)
         clc;
         fprintf("Making Video \t[%d%%]\n", round(((im - start) / leng) * 100));
         
-        subplot(1,2,1);
+        %subplot(1,2,1);
         imshowpair(imData(start).Mask, imData(im).Mask);     
         Frame = getframe(gcf);
         writeVideo(outputVideo,Frame)
