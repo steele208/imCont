@@ -1,5 +1,5 @@
 function handles = rheologyCalcs(handles)
-    handles = make_MSD(handles);
+  %  handles = make_MSD(handles);
     handles = creep_compliance(handles);
     handles = G_Star(handles);
     handles = G_Primes(handles);
@@ -37,8 +37,7 @@ function handles = creep_compliance(handles)
             handles.wbCur, 'Evaluate J(t)');
         waitbar2a(handles.barMax + set / length(uData.tracked) * 0.025,...
             handles.wbOA);
-        uData.tracked{set,1}(1).Creep = ...
-            constCre .* uData.tracked{set}(1).MSD;      
+        uData.calcs.Creep{set} = constCre .* uData.calcs.MSD{set};      
     end
     handles.barMax = handles.barMax + 0.025;
     handles.output.UserData = uData;
@@ -54,7 +53,7 @@ function handles = G_Star(handles)
             handles.wbCur, ['Evaluate G ', char(8432)]);
         waitbar2a(handles.barMax + set / length(uData.tracked) * 0.025,...
             handles.wbOA);
-        uData.tracked{set}(1).G_Star = fft(uData.tracked{set}(1).Creep);
+        uData.calcs.G_Star{set} = fft(uData.calcs.Creep{set});
     end
     handles.barMax = handles.barMax + 0.025;
     handles.output.UserData = uData;
@@ -66,8 +65,8 @@ function handles = G_Primes(handles)
             handles.wbCur, ['Evaluate G', char(697), '& G',char(697),char(697)]);
         waitbar2a(handles.barMax + set / length(uData.tracked) * 0.025,...
             handles.wbOA);
-        uData.tracked{set}(1).G_Prime = real(uData.tracked{set}(1).G_Star);
-        uData.tracked{set}(1).G_DblPrime = imag(uData.tracked{set}(1).G_Star);
+        uData.calcs.G_Prime{set} = real(uData.calcs.G_Star{set});
+        uData.calcs.G_DblPrime{set} = imag(uData.calcs.G_Star{set});
     end
     handles.barMax = handles.barMax + 0.025;
     handles.output.UserData = uData;

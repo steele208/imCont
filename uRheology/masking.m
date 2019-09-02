@@ -11,8 +11,8 @@ end
 for i = 1 : length(images)
     msg = {'Applying Constrast Mask to Images'};
     handles.text20.String = msg;
-    waitbar2a(i/length(images), handles.wbCur, 'Mask Images');
-    waitbar2a(handles.barMax + i/length(images)/10, handles.wbOA);
+    %waitbar2a(i/length(images), handles.wbCur, 'Mask Images');
+    %waitbar2a(handles.barMax + i/length(images)/10, handles.wbOA);
     
     
     % bw threshold mask
@@ -25,7 +25,7 @@ for i = 1 : length(images)
     images(i).trkInfo = bwconncomp(images(i).Mask, 8); 
     
     for pIdx = 1 : length(images(i).trkInfo.PixelIdxList) % change to (x,y)
-        [y, x] = ind2sub([1080 1080], images(i).trkInfo.PixelIdxList{pIdx});
+        [y, x] = ind2sub(size(images(i).Image), images(i).trkInfo.PixelIdxList{pIdx});
         images(i).trkInfo.PixelIdxList{pIdx} = [x y];
         images(i).trkInfo.Corners{pIdx, 1} = [min(x) - 2, min(y) - 1,... 
             max(x) - min(x) + 3, max(y) - min(y) + 2]; % Rectangle Information

@@ -40,7 +40,7 @@ for set = 1 : length(userData.tracked)
     end
     
     hold on
-    %}
+ 
     for i = 1 : length(userData.tracked{set,1})
         if all(size(userData.tracked{set,1}(1).AvgTime(:,i)) ==...
                 size(nanmean(userData.tracked{set,1}(1).AvgPath2,2))) &&...
@@ -50,20 +50,20 @@ for set = 1 : length(userData.tracked)
             continue
         end
     end
- 
+ %}
     subplot(2, 1, 1);
-    plot(userData.tracked{set,1}(1).AvgTime(:,t),...
-        userData.tracked{set,1}(1).G_Prime);
-    hold on;
-    plot(userData.tracked{set,1}(1).AvgTime(:,t),...
-        userData.tracked{set,1}(1).G_DblPrime);
-    legend('G Prime','G Double Prime');
-    ylabel('Log_{10} G*');
-    xlabel('Time (ms)');
-    
+    if any(isnan(userData.calcs.G_Prime{set}))
+        text(0.3, 0.5, 'NaN Error','FontSize', 30)
+    else
+        plot(userData.calcs.G_Prime{set});
+        hold on;
+        plot(userData.calcs.G_DblPrime{set});
+        legend('G Prime','G Double Prime');
+        ylabel('Log_{10} G*');
+        xlabel('Time (ms)');
+    end
     subplot(2, 1, 2);
-    plot(userData.tracked{set,1}(1).AvgTime(:,t),...
-        (res.*nanmean(userData.tracked{set,1}(1).AvgPath2,2)).^2);
+    plot(res .* userData.calcs.MSD{set});
     ylabel('Distance Travelled (m)');
     xlabel('Time (ms)');
     title('Mean Squared Particle Displacement');
@@ -73,14 +73,13 @@ userData.figure{end+1} = figure(1);
 userData.figure{end}.Visible = vis;
 hold on;
 for set = 1 : length(userData.tracked)
-    plot(nanmean(userData.tracked{set,1}(1).AvgTime,2),...
-        userData.tracked{set,1}(1).MSD);
+    plot(res .* userData.calcs.MSD{set});
     title({'Mean Squared Particle Displacement',...
         'Gel Concentrations  1% to 8%'}, 'FontSize', 14);
     ylabel('Distance Travelled (m)');
     xlabel('Time (ms)');
-    tMax = ceil(max(nanmean(userData.tracked{set,1}(1).AvgTime,2))/5)*5;
-    axis([0 tMax 0 inf])
+   % tMax = ceil(max(nanmean(userData.tracked{set,1}(1).AvgTime,2))/5)*5;
+   % axis([0 tMax 0 inf])
     % Legend ...!? %
 end
 
