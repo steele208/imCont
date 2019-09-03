@@ -34,30 +34,34 @@ function handles = imageLoad(handles)
         end
         setSize = setSize + 1;
         im(i).Set = curSet;
-        
-        % Determine contrast using first image of a set
-        if i == 1 || (i > 1 && ~strcmp(im(i).ID, im(i-1).ID))
-			im(i).Image = imread(strcat(fpath, im(i).Name));
-			im(i).Image = uint8(im(i).Image ./ 256);
-			% GUI for setting contrast levels
-            output = new_cTool(im(i).Image, options); 
-			UserData = output.UserData;
-            if isfield(UserData,'movDist')
-                handles.output.UserData.movDist = UserData.movDist;
-            end
-			delete(output);
-			
-			if UserData.Continue
-				% Load and adjust image 1
-				im(i).Image = imadjust(im(i).Image, ...
-                    [UserData.Floor UserData.Roof]); 
-			end
-		elseif UserData.Continue
-			% Load and adjust set of images.
-			im(i).Image = imread(strcat(fpath, im(i).Name));
-			im(i).Image = uint8(im(i).Image ./ 256);
-			im(i).Image = imadjust(im(i).Image, ...
-                [UserData.Floor UserData.Roof]); 
+        switch handles.BandPass.Value
+            case 0
+                im(i).Image = imread(strcat(fpath, im(i).Name));
+                im(i).Image = uint8(im(i).Image ./ 256);
+                % Determine contrast using first image of a set
+                if i == 1 || (i > 1 && ~strcmp(im(i).ID, im(i-1).ID))
+                    % GUI for setting contrast levels
+                    output = new_cTool(im(i).Image, options); 
+                    UserData = output.UserData;
+                    if isfield(UserData,'movDist')
+                        handles.output.UserData.movDist = UserData.movDist;
+                    end
+                    delete(output);
+
+                    if UserData.Continue
+                        % Load and adjust image 1
+                        im(i).Image = imadjust(im(i).Image, ...
+                            [UserData.Floor UserData.Roof]); 
+                    end
+                elseif UserData.Continue
+                    % Load and adjust set of images.
+                    im(i).Image = imadjust(im(i).Image, ...
+                        [UserData.Floor UserData.Roof]); 
+                end
+            case 1
+                % load image, transform from 16bit to 8bit
+                im(i).Image = imread(strcat(fpath, im(i).Name));
+                im(i).Image = uint8(255 .* mat2gray(im(i).Image));         
         end
     end
     handles.output.UserData.imData = im;

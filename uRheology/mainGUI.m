@@ -22,7 +22,7 @@ function varargout = mainGUI(varargin)
 
 % Edit the above text to modify the response to help mainGUI
 
-% Last Modified by GUIDE v2.5 03-Apr-2019 14:10:30
+% Last Modified by GUIDE v2.5 03-Sep-2019 08:25:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -328,12 +328,16 @@ switch(get(handles.optionMenu, 'Value'))
         
         set(handles.radiobutton14, 'Enable', 'off');
         set(handles.radiobutton14, 'Value', 0);
+        
+        set(handles.BandPass, 'Enable', 'off');
+        set(handles.BandPass, 'Value', 1);
         radiobutton14_Callback(hObject, eventdata, handles)
         
     case 2 %Advanced
         set(handles.radiobutton12, 'Enable', 'on');
         set(handles.radiobutton13, 'Enable', 'on');
         set(handles.radiobutton14, 'Enable', 'on');
+        set(handles.BandPass, 'Enable', 'on');
         
 end
 
@@ -477,3 +481,12 @@ switch handles.radiobutton14.Value
     case 1
         set(handles.edit3, 'Enable', 'on');
 end
+
+
+% --- Executes on button press in BandPass.
+function BandPass_Callback(hObject, eventdata, handles)
+% hObject    handle to BandPass (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of BandPass
