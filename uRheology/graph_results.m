@@ -25,7 +25,7 @@ userData.figure = [];
 for set = 1 : length(userData.tracked)
     userData.figure{end+1} = figure(set+1);
     userData.figure{end}.Visible = vis;
-    
+    n = size(userData.calcs.G_Prime{set},2);
     %{
     for pth = 1 : length(userData.tracked{set,1})
         subplot(2, 1, 1);
@@ -55,15 +55,15 @@ for set = 1 : length(userData.tracked)
     if any(isnan(userData.calcs.G_Prime{set}))
         text(0.3, 0.5, 'NaN Error','FontSize', 30)
     else
-        plot(userData.calcs.G_Prime{set});
+        plot(userData.calcs.G_Prime{set}, userData.meanTime(1:n));
         hold on;
-        plot(userData.calcs.G_DblPrime{set});
+        plot(userData.calcs.G_DblPrime{set}, userData.meanTime(1:n));
         legend('G Prime','G Double Prime');
         ylabel('Log_{10} G*');
         xlabel('Time (ms)');
     end
     subplot(2, 1, 2);
-    plot(res .* userData.calcs.MSD{set});
+    plot(res .* userData.calcs.MSD{set}, userData.meanTime(1:n));
     ylabel('Distance Travelled (m)');
     xlabel('Time (ms)');
     title('Mean Squared Particle Displacement');
@@ -78,6 +78,7 @@ for set = 1 : length(userData.tracked)
         'Gel Concentrations  1% to 8%'}, 'FontSize', 14);
     ylabel('Distance Travelled (m)');
     xlabel('Time (ms)');
+    
    % tMax = ceil(max(nanmean(userData.tracked{set,1}(1).AvgTime,2))/5)*5;
    % axis([0 tMax 0 inf])
     % Legend ...!? %

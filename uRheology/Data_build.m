@@ -38,7 +38,7 @@ for im = 1 : length(imageInfo)
             'timeID', str2double(imageInfo(im).Meta.PlaneID));
     end
     
-    for prtcl = 1 : length(imageInfo(im).trkInfo.Corners)
+    for prtcl = 1 : size(imageInfo(im).trkInfo.Corners, 1)
             % For image #1, all particles will need to be added as new
             if im == 1
                 if prtcl == 1
@@ -69,7 +69,7 @@ for im = 1 : length(imageInfo)
                             added = 1;
                             break;
                         % if the particle is out of time scope, mark it as finished    
-                        elseif (particles(pID).Time + 1) < ... 
+                        elseif (particles(pID).Time + 0.5) < ... 
                             imageInfo(im).Meta.RelTime
                             
                             particles(pID).finTrack = 1;

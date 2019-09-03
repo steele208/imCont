@@ -44,18 +44,20 @@ for set = 1 : length(userData.tracked)
     % columns within data)
     filter = all(isnan(MSDSpace));
     for i = size(MSDSpace, 2) : -1 : 1
-        if filter(i) == 0
+        if filter(i)
             MSD = MSDSpace(:, 1:i-1);
             break;
         end
     end
+    
+    % partPerTime -> Particles/time
+    % Could be used to only calculate MSD based on an appropriate number of
+    % particles being available to calculate from.
     partPerTime = zeros(1, size(MSD, 2));
     for idx = 1 : size(MSD ,2)
         partPerTime(idx) = nnz(~isnan(MSD(:,idx)));
     end
-    % partPerTime -> Particles/time 
-    % Could be used to only calculate MSD based on an appropriate number of
-    % particles being available to calculate from.
+
     userData.calcs.MSD_data{set,1} = MSD;
     userData.calcs.MSD{set,1} = nanmean(MSD);
 end
