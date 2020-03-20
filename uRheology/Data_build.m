@@ -37,7 +37,9 @@ for im = 1 : length(imageInfo)
             'finTrack', 0,...
             'timeID', str2double(imageInfo(im).Meta.PlaneID));
     end
-    
+    if ~size(imageInfo(im).trkInfo.Corners, 1)
+        continue;
+    end
     for prtcl = 1 : size(imageInfo(im).trkInfo.Corners, 1)
             % For image #1, all particles will need to be added as new
             if im == 1

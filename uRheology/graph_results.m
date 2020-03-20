@@ -25,7 +25,7 @@ userData.figure = [];
 for set = 1 : length(userData.tracked)
     userData.figure{end+1} = figure(set+1);
     userData.figure{end}.Visible = vis;
-    n = size(userData.calcs.G_Prime{set},2);
+    accept = userData.calcs.MSD{set, 2} > 50;
     %{
     for pth = 1 : length(userData.tracked{set,1})
         subplot(2, 1, 1);
@@ -53,17 +53,18 @@ for set = 1 : length(userData.tracked)
  %}
     subplot(2, 1, 1);
     if any(isnan(userData.calcs.G_Prime{set}))
-        text(0.3, 0.5, 'NaN Error','FontSize', 30)
+        text(0.3, 0.5, 'Processing Error','FontSize', 30)
     else
-        plot(userData.calcs.G_Prime{set}, userData.meanTime(1:n));
+        
+        plot(userData.meanTime(accept), userData.calcs.G_Prime{set}(accept));
         hold on;
-        plot(userData.calcs.G_DblPrime{set}, userData.meanTime(1:n));
+        plot(userData.meanTime(accept), userData.calcs.G_DblPrime{set}(accept));
         legend('G Prime','G Double Prime');
         ylabel('Log_{10} G*');
         xlabel('Time (ms)');
     end
     subplot(2, 1, 2);
-    plot(res .* userData.calcs.MSD{set}, userData.meanTime(1:n));
+    plot(userData.meanTime(accept), res .* userData.calcs.MSD{set}(accept));
     ylabel('Distance Travelled (m)');
     xlabel('Time (ms)');
     title('Mean Squared Particle Displacement');
@@ -73,7 +74,8 @@ userData.figure{end+1} = figure(1);
 userData.figure{end}.Visible = vis;
 hold on;
 for set = 1 : length(userData.tracked)
-    plot(res .* userData.calcs.MSD{set});
+    n = size(userData.calcs.G_Prime{set},2);
+    plot(userData.meanTime(1:n), res .* userData.calcs.MSD{set});
     title({'Mean Squared Particle Displacement',...
         'Gel Concentrations  1% to 8%'}, 'FontSize', 14);
     ylabel('Distance Travelled (m)');

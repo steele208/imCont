@@ -2,8 +2,18 @@ function run_schedule(handles)
     switch handles.loadFiles.Value
         case 1 % New Data
             handles = isNew(handles);
+            if handles.output.UserData.findFFlag || handles.output.UserData.findXFlag
+                msg = {'Process Stopped by user'};
+                handles.text20.String = msg;
+                return;
+            end
         case 0 % Load Data
             handles = isLoad(handles);
+            if handles.output.UserData.loadSFlag || handles.output.UserData.findXFlag
+                msg = {'Process Stopped by user'};
+                handles.text20.String = msg;
+                return;
+            end
     end
 
 % MATHS on MSD
@@ -92,7 +102,7 @@ function handles = findXML(handles)
         [xmlFile, xmlPath] = uigetfile('.xml');
     end
     xmlLocation = strcat(xmlPath, xmlFile);
-    if any(xmlLocation == 0)
+    if any(xmlLocation == 0) || xmlLocation == ""
         handles.output.UserData.findXFlag = 1;
         return
     end
